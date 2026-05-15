@@ -1,0 +1,16 @@
+{
+  "name": "mr-papa-automation",
+  "version": "1.0.0",
+  "description": "Mr Papa Catering AI Agent",
+  "main": "api/agent.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel deploy --prod"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.12.0",
+    "dotenv": "^16.3.1",
+    "googleapis": "^118.0.0",
+    "nodemailer": "^6.9.7"
+  }
+}
