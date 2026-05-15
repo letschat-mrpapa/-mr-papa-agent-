@@ -1,3 +1,5 @@
 node_modules/
 .env
 client_secret*.json
+.vercel
+.env*.local
