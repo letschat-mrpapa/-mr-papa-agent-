@@ -375,5 +375,4 @@ module.exports = async (req, res) => {
     console.error("Error:", error);
     res.status(500).json({ error: error.message });
   }
-}; 
- 
+};
