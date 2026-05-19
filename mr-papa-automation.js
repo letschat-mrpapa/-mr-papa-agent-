@@ -105,7 +105,7 @@ async function getUnrepliedEmails() {
 
     const response = await gmail.users.messages.list({
       userId: "me",
-      q: 'is:unread in:inbox (subject:(catering OR quote OR enquiry) OR subject:(event OR celebration OR party))',
+      q: 'is:unread in:inbox',
       maxResults: 5,
     });
 
@@ -376,7 +376,3 @@ async function processCateringEmails() {
 }
 
 processCateringEmails();
-
-setInterval(processCateringEmails, 5 * 60 * 1000);
-
-console.log("🔄 Running email check every 5 minutes...\n");
