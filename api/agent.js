@@ -1,4 +1,3 @@
-// api/agent.js
 require("dotenv").config();
 const { Anthropic } = require("@anthropic-ai/sdk");
 const { google } = require("googleapis");
@@ -19,7 +18,6 @@ oauth2Client.setCredentials({
 
 const gmail = google.gmail({ version: "v1", auth: oauth2Client });
 
-// TU SISTEMA PROMPT (Copia del archivo anterior)
 const MR_PAPA_SYSTEM = `You are Carlos from Mr Papa Catering, based in Fyshwick, Canberra, Australia.
 
 LANGUAGE: AUSTRALIAN ENGLISH - BALANCED APPROACH
@@ -71,14 +69,14 @@ Hello [Name], or Hi [Name],
 
 [Body: What you offer that matches their SPECIFIC needs from the entire conversation]
 We can help with:
-1. Canapé pop-up - Full service experience
-2. Food truck - On-site cooking and service
-3. Fiesta Platters - Ready-made and flexible
+1. Canape pop-up. Full service experience
+2. Food truck. On-site cooking and service
+3. Fiesta Platters. Ready-made and flexible
 
 [Acknowledge any dietary requirements or special needs already mentioned]
 
 [Next steps: How to move forward - based on what stage they're at]
-Once you share a few more details [only ask for info NOT already provided], 
+Once you share a few more details (only ask for info NOT already provided),
 we can put together a tailored quote for you.
 
 [Optional: tasting offer when appropriate]
@@ -89,17 +87,14 @@ CRITICAL RULES:
 - NO asterisks (*) anywhere
 - NO hyphens (-, --, ---)
 - NO dashes of any kind
-- Use periods and spaces instead: "Food truck. On-site cooking."
+- Use periods and spaces instead
 - Maximum 250 words
 - Always include: what you offer, next steps, signature
 - Sound like a real person named Carlos
 - Add personality where it fits naturally
 - Never robotic or templated
-- Balance: casual enough to be warm, professional enough to be trustworthy
-- Use light humour but not jokes - just personality
 - Australian English spelling and tone throughout`;
 
-// FUNCIONES (Copia las funciones de tu archivo anterior)
 function getMessageBody(payload) {
   let body = "";
 
@@ -121,11 +116,11 @@ function getMessageBody(payload) {
 
 async function getUnrepliedEmails() {
   try {
-    console.log("📧 Checking for unread catering enquiries...\n");
+    console.log("📧 Checking for unread emails...\n");
 
     const response = await gmail.users.messages.list({
       userId: "me",
-      q: 'is:unread in:inbox (subject:(catering OR quote OR enquiry) OR subject:(event OR celebration OR party))',
+      q: "is:unread in:inbox",
       maxResults: 5,
     });
 
@@ -157,15 +152,15 @@ async function getEmailContent(messageId) {
     const email = emailMatch ? emailMatch[1] : from;
     const name = from.replace(/<.+?>/, "").trim().split(" ")[0] || "Friend";
 
-    return { 
-      from: email, 
-      name, 
-      subject, 
-      body, 
-      messageId, 
+    return {
+      from: email,
+      name,
+      subject,
+      body,
+      messageId,
       messageId_original,
       threadId,
-      fullFrom: from
+      fullFrom: from,
     };
   } catch (error) {
     console.error("❌ Error getting email content:", error.message);
@@ -185,7 +180,7 @@ async function getThreadHistory(threadId) {
     const messages = thread.messages || [];
 
     let history = "";
-    
+
     for (let msg of messages) {
       const headers = msg.payload.headers;
       const from = headers.find((h) => h.name === "From")?.value || "Unknown";
@@ -214,7 +209,7 @@ async function generateMrPapaResponse(name, emailBody, subject, threadHistory) {
     }
 
     const message = await anthropic.messages.create({
-      model: "claude-opus-4-6",
+      model: "claude-sonnet-4-6",
       max_tokens: 350,
       system: MR_PAPA_SYSTEM,
       messages: [
@@ -228,23 +223,23 @@ LATEST MESSAGE:
 ${emailBody}
 ${threadContext}
 
-Respond as Carlos from Mr Papa Catering. Keep it warm and concise (no more than 250 words). 
+Respond as Carlos from Mr Papa Catering. Keep it warm and concise (no more than 250 words).
 NO asterisks (*), NO hyphens or dashes of any kind. Use simple punctuation only.
 Make it personal and natural, like Carlos is writing to a friend.
 
 IMPORTANT: Read the full conversation history above. Do NOT ask for information already provided.
-If they already mentioned guest count, date, dietary needs, or budget - acknowledge it and build on it.
 Only ask for MISSING information.`,
         },
       ],
     });
 
-    let response = message.content[0].type === "text" ? message.content[0].text : "";
-    
+    let response =
+      message.content[0].type === "text" ? message.content[0].text : "";
+
     response = response.replace(/\*/g, "");
     response = response.replace(/[-–—]/g, " ");
     response = response.replace(/  +/g, " ");
-    
+
     return response;
   } catch (error) {
     console.error("❌ Error generating response:", error.message);
@@ -306,19 +301,15 @@ async function markAsRead(messageId) {
 async function processCateringEmails() {
   console.log("🧡 MR PAPA EMAIL AUTOMATION - STARTING\n");
   console.log("═══════════════════════════════════════\n");
-  console.log("🇦🇺 Mode: VERCEL DEPLOYMENT\n");
-  console.log("═══════════════════════════════════════\n");
 
   const unrepliedEmails = await getUnrepliedEmails();
 
   if (unrepliedEmails.length === 0) {
-    console.log("✨ No unread catering enquiries found. All good!\n");
-    return { processed: 0, message: "No new emails" };
+    console.log("✨ No unread emails found. All good!\n");
+    return;
   }
 
-  console.log(`Found ${unrepliedEmails.length} unread enquiries\n`);
-
-  let processedCount = 0;
+  console.log(`Found ${unrepliedEmails.length} unread emails\n`);
 
   for (let i = 0; i < unrepliedEmails.length; i++) {
     const emailId = unrepliedEmails[i].id;
@@ -330,7 +321,6 @@ async function processCateringEmails() {
     console.log(`From: ${emailContent.name} <${emailContent.from}>`);
     console.log(`Subject: ${emailContent.subject}\n`);
 
-    console.log("📖 Reading full conversation history...");
     const threadHistory = await getThreadHistory(emailContent.threadId);
 
     const response = await generateMrPapaResponse(
@@ -352,7 +342,6 @@ async function processCateringEmails() {
 
       if (saved) {
         await markAsRead(emailId);
-        processedCount++;
         console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
       }
     }
@@ -361,18 +350,7 @@ async function processCateringEmails() {
   }
 
   console.log("═══════════════════════════════════════");
-  console.log(`✅ Processed ${processedCount} emails!\n`);
-
-  return { processed: processedCount, success: true };
+  console.log("✅ All done! Check your Gmail drafts 🧡\n");
 }
 
-// ENDPOINT PARA VERCEL
-module.exports = async (req, res) => {
-  try {
-    const result = await processCateringEmails();
-    res.status(200).json(result);
-  } catch (error) {
-    console.error("Error:", error);
-    res.status(500).json({ error: error.message });
-  }
-};
+processCateringEmails();
