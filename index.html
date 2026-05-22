@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mr Papa CRM</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black: #000000;
+  --lime: #D2F778;
+  --pink: #F775DF;
+  --blue: #83D2DB;
+  --melon: #FF9990;
+  --white: #FFFFFF;
+  --gray-light: #F5F5F0;
+  --gray: #E8E8E0;
+  --gray-dark: #888880;
+  --text: #111111;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Space Grotesk', sans-serif; background: var(--gray-light); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
+
+/* SIDEBAR */
+.sidebar { width: 220px; min-width: 220px; background: var(--black); display: flex; flex-direction: column; padding: 0; overflow-y: auto; }
+.logo-area { padding: 20px 18px; border-bottom: 1px solid #222; display: flex; align-items: center; gap: 10px; }
+.logo-img { width: 40px; height: 40px; border-radius: 8px; background: var(--lime); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.logo-img img { width: 100%; height: 100%; object-fit: cover; }
+.logo-text { font-size: 15px; font-weight: 700; color: var(--lime); letter-spacing: -0.02em; }
+.logo-sub { font-size: 10px; color: var(--gray-dark); margin-top: 1px; }
+.nav { padding: 10px 0; flex: 1; }
+.nav-section { font-size: 9px; font-weight: 600; color: #444; text-transform: uppercase; letter-spacing: 0.1em; padding: 12px 18px 4px; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 18px; font-size: 13px; color: #888; cursor: pointer; transition: all 0.12s; border-left: 3px solid transparent; }
+.nav-item:hover { background: #111; color: var(--white); }
+.nav-item.active { background: #111; color: var(--lime); border-left-color: var(--lime); font-weight: 600; }
+.nav-item .dot { width: 20px; height: 20px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+.dot-lime { background: #D2F77820; color: var(--lime); }
+.dot-pink { background: #F775DF20; color: var(--pink); }
+.dot-blue { background: #83D2DB20; color: var(--blue); }
+.dot-melon { background: #FF999020; color: var(--melon); }
+.dot-gray { background: #88888820; color: #888; }
+.sidebar-footer { padding: 14px 18px; border-top: 1px solid #222; font-size: 10px; color: #444; }
+
+/* MAIN */
+.main { flex: 1; overflow-y: auto; background: var(--gray-light); }
+.page { display: none; padding: 28px 32px; min-height: 100%; }
+.page.active { display: block; }
+
+/* HEADER */
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; }
+.page-title { font-size: 24px; font-weight: 700; color: var(--black); letter-spacing: -0.03em; }
+.page-sub { font-size: 13px; color: var(--gray-dark); margin-top: 3px; }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; cursor: pointer; border: 1.5px solid #ddd; background: var(--white); color: var(--text); font-family: 'Space Grotesk', sans-serif; transition: all 0.12s; }
+.btn:hover { background: #f0f0e8; }
+.btn-primary { background: var(--black); color: var(--lime); border-color: var(--black); }
+.btn-primary:hover { background: #222; }
+.btn-lime { background: var(--lime); color: var(--black); border-color: var(--lime); }
+.btn-lime:hover { background: #c5ea6a; }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* METRICS */
+.metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+.metric { background: var(--white); border-radius: var(--radius); padding: 16px 18px; border: 1.5px solid var(--gray); position: relative; overflow: hidden; }
+.metric::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.metric-lime::before { background: var(--lime); }
+.metric-pink::before { background: var(--pink); }
+.metric-blue::before { background: var(--blue); }
+.metric-melon::before { background: var(--melon); }
+.metric-label { font-size: 11px; font-weight: 600; color: var(--gray-dark); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+.metric-value { font-size: 28px; font-weight: 700; color: var(--black); line-height: 1; letter-spacing: -0.03em; }
+.metric-sub { font-size: 11px; color: var(--gray-dark); margin-top: 4px; }
+
+/* CARDS */
+.card { background: var(--white); border: 1.5px solid var(--gray); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.card-title { font-size: 14px; font-weight: 700; color: var(--black); letter-spacing: -0.01em; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* TABLE */
+.table-wrap { background: var(--white); border: 1.5px solid var(--gray); border-radius: var(--radius); overflow: hidden; margin-bottom: 16px; }
+.table-toolbar { padding: 14px 18px; border-bottom: 1.5px solid var(--gray); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; background: #FAFAF5; }
+.search-input { flex: 1; min-width: 200px; padding: 8px 12px; border: 1.5px solid var(--gray); border-radius: var(--radius-sm); font-size: 13px; font-family: 'Space Grotesk', sans-serif; background: var(--white); color: var(--text); }
+.search-input:focus { outline: none; border-color: var(--lime); }
+.filter-select { padding: 8px 10px; border: 1.5px solid var(--gray); border-radius: var(--radius-sm); font-size: 12px; font-family: 'Space Grotesk', sans-serif; background: var(--white); color: var(--text); cursor: pointer; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; padding: 10px 14px; font-size: 10px; font-weight: 700; color: var(--gray-dark); text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1.5px solid var(--gray); white-space: nowrap; background: #FAFAF5; }
+td { padding: 11px 14px; border-bottom: 1px solid var(--gray); color: var(--text); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: #FAFAF5; cursor: pointer; }
+
+/* BADGES */
+.badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; letter-spacing: 0.01em; }
+.b-progress { background: #EBF5FF; color: #1565C0; }
+.b-finished { background: #EDFAF0; color: #1B7340; }
+.b-dropped { background: #F5F5F0; color: #666; }
+.b-new { background: #FFF9E6; color: #B45309; }
+
+/* FORMS */
+.form-group { margin-bottom: 14px; }
+.form-label { display: block; font-size: 11px; font-weight: 700; color: var(--gray-dark); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
+.form-input { width: 100%; padding: 9px 12px; border: 1.5px solid var(--gray); border-radius: var(--radius-sm); font-size: 13px; font-family: 'Space Grotesk', sans-serif; background: var(--white); color: var(--text); }
+.form-input:focus { outline: none; border-color: var(--black); }
+textarea.form-input { min-height: 80px; resize: vertical; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 200; }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--white); border-radius: var(--radius); border: 1.5px solid var(--gray); padding: 24px; width: 560px; max-width: 95vw; max-height: 90vh; overflow-y: auto; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+.modal-title { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
+.close-btn { background: none; border: none; cursor: pointer; color: var(--gray-dark); font-size: 20px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; }
+
+/* EVENTS */
+.event-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--gray); }
+.event-row:last-child { border-bottom: none; }
+.event-date-box { background: var(--lime); border-radius: var(--radius-sm); padding: 6px 10px; text-align: center; min-width: 48px; }
+.event-day { font-size: 20px; font-weight: 700; color: var(--black); line-height: 1; }
+.event-month { font-size: 9px; font-weight: 700; color: var(--black); text-transform: uppercase; }
+.event-info { flex: 1; }
+.event-name { font-size: 13px; font-weight: 600; color: var(--black); }
+.event-detail { font-size: 11px; color: var(--gray-dark); margin-top: 2px; }
+
+/* REVIEWS */
+.review-box { background: var(--gray-light); border: 1.5px solid var(--gray); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 12px; font-size: 13px; min-height: 80px; resize: vertical; width: 100%; font-family: 'Space Grotesk', sans-serif; color: var(--text); }
+.ai-draft { background: #FAFFF0; border: 1.5px solid var(--lime); border-radius: var(--radius); padding: 14px; margin-top: 14px; display: none; }
+.ai-draft-label { font-size: 10px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.stars { color: #F59E0B; letter-spacing: 2px; font-size: 16px; }
+
+/* CONTENT */
+.week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+.day-head { text-align: center; font-size: 10px; font-weight: 700; color: var(--gray-dark); text-transform: uppercase; letter-spacing: 0.06em; padding: 6px 0; }
+.day-cell { background: var(--gray-light); border: 1.5px solid var(--gray); border-radius: var(--radius-sm); min-height: 90px; padding: 8px; cursor: pointer; transition: all 0.12s; font-size: 11px; }
+.day-cell:hover { border-color: var(--black); }
+.day-cell.has-post { background: #FAFFF0; border-color: var(--lime); }
+.post-tag { font-size: 9px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; }
+.post-preview { font-size: 10px; color: var(--gray-dark); line-height: 1.4; }
+
+/* IMPORT */
+.import-zone { border: 2px dashed var(--gray); border-radius: var(--radius); padding: 36px; text-align: center; cursor: pointer; transition: all 0.12s; }
+.import-zone:hover, .import-zone.drag { border-color: var(--lime); background: #FAFFF0; }
+.import-icon { font-size: 32px; margin-bottom: 10px; }
+.import-title { font-size: 15px; font-weight: 700; color: var(--black); margin-bottom: 4px; letter-spacing: -0.01em; }
+.import-sub { font-size: 12px; color: var(--gray-dark); }
+.import-success { background: #EDFAF0; border: 1.5px solid #86EFAC; border-radius: var(--radius-sm); padding: 14px 18px; display: none; align-items: center; gap: 10px; margin-top: 12px; }
+
+/* PROGRESS */
+.progress-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.progress-bar { height: 6px; background: var(--gray); border-radius: 3px; overflow: hidden; margin-bottom: 12px; }
+.progress-fill-lime { height: 100%; background: var(--lime); border-radius: 3px; }
+.progress-fill-pink { height: 100%; background: var(--pink); border-radius: 3px; }
+.progress-fill-gray { height: 100%; background: var(--gray-dark); border-radius: 3px; }
+
+/* PAGINATION */
+.pagination { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; border-top: 1px solid var(--gray); font-size: 12px; color: var(--gray-dark); background: #FAFAF5; }
+
+.empty { text-align: center; padding: 48px 24px; color: var(--gray-dark); }
+.empty-title { font-size: 14px; font-weight: 600; color: var(--black); margin-bottom: 4px; }
+
+input[type="file"] { display: none; }
+
+.tag-pill { display: inline-flex; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; letter-spacing: 0.02em; }
+
+.days-badge { font-family: 'DM Mono', monospace; font-size: 11px; }
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="logo-area">
+    <div class="logo-img">
+      <img src="data:image/jpeg;base64,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" alt="Mr Papa logo">
+    </div>
+    <div>
+      <div class="logo-text">MR.PAPA</div>
+      <div class="logo-sub">Catering CRM</div>
+    </div>
+  </div>
+  <div class="nav">
+    <div class="nav-section">Main</div>
+    <div class="nav-item active" onclick="showPage('dashboard',this)">
+      <span class="dot dot-lime">⌂</span><span>Dashboard</span>
+    </div>
+    <div class="nav-item" onclick="showPage('inquiries',this)">
+      <span class="dot dot-lime">✉</span><span>Inquiries</span>
+    </div>
+    <div class="nav-item" onclick="showPage('calendar',this)">
+      <span class="dot dot-blue">◷</span><span>Calendar</span>
+    </div>
+    <div class="nav-section">Marketing</div>
+    <div class="nav-item" onclick="showPage('content',this)">
+      <span class="dot dot-pink">◈</span><span>Content</span>
+    </div>
+    <div class="nav-item" onclick="showPage('reviews',this)">
+      <span class="dot dot-melon">★</span><span>Reviews</span>
+    </div>
+    <div class="nav-section">System</div>
+    <div class="nav-item" onclick="showPage('import',this)">
+      <span class="dot dot-gray">↑</span><span>Import CSV</span>
+    </div>
+    <div class="nav-item" onclick="showPage('settings',this)">
+      <span class="dot dot-gray">⚙</span><span>Settings</span>
+    </div>
+  </div>
+  <div class="sidebar-footer">Mr Papa CRM v2.0 🧡</div>
+</nav>
+
+<main class="main">
+
+<!-- DASHBOARD -->
+<div id="page-dashboard" class="page active">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Dashboard</div>
+      <div class="page-sub" id="dash-greeting">Welcome back, Carla 🧡</div>
+    </div>
+    <div class="btn-group">
+      <button class="btn" onclick="showPage('import', document.querySelectorAll('.nav-item')[5])">↑ Import CSV</button>
+      <button class="btn btn-primary" onclick="showPage('inquiries', document.querySelectorAll('.nav-item')[1]); openModal()">+ New inquiry</button>
+    </div>
+  </div>
+  <div class="metrics">
+    <div class="metric metric-lime">
+      <div class="metric-label">In progress</div>
+      <div class="metric-value" id="m-active">0</div>
+      <div class="metric-sub">Active inquiries</div>
+    </div>
+    <div class="metric metric-blue">
+      <div class="metric-label">Total</div>
+      <div class="metric-value" id="m-total">0</div>
+      <div class="metric-sub">All inquiries</div>
+    </div>
+    <div class="metric metric-pink">
+      <div class="metric-label">Finished</div>
+      <div class="metric-value" id="m-finished">0</div>
+      <div class="metric-sub">Completed events</div>
+    </div>
+    <div class="metric metric-melon">
+      <div class="metric-label">Follow ups</div>
+      <div class="metric-value" id="m-followup">0</div>
+      <div class="metric-sub">Due today or overdue</div>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Upcoming events</div></div>
+      <div id="upcoming-list"><div class="empty"><div class="empty-title">No upcoming events</div><div style="font-size:12px;color:var(--gray-dark)">Import your CSV to get started</div></div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Status breakdown</div></div>
+      <div id="status-breakdown"></div>
+    </div>
+  </div>
+</div>
+
+<!-- INQUIRIES -->
+<div id="page-inquiries" class="page">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Inquiries</div>
+      <div class="page-sub" id="inquiry-count-label">All client inquiries</div>
+    </div>
+    <div class="btn-group">
+      <button class="btn" onclick="exportCSV()">↓ Export</button>
+      <button class="btn btn-primary" onclick="openModal()">+ New inquiry</button>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <div class="table-toolbar">
+      <input type="text" class="search-input" placeholder="Search name, company, type..." id="search-input" oninput="filterTable()">
+      <select class="filter-select" id="filter-status" onchange="filterTable()">
+        <option value="">All statuses</option>
+        <option value="Progress">Progress</option>
+        <option value="Finished">Finished</option>
+        <option value="Dropped">Dropped</option>
+      </select>
+      <select class="filter-select" id="filter-type" onchange="filterTable()">
+        <option value="">All types</option>
+        <option value="Wedding">Wedding</option>
+        <option value="Corporate">Corporate</option>
+        <option value="Birthday">Birthday</option>
+        <option value="Private">Private</option>
+        <option value="Community">Community</option>
+        <option value="Market">Market</option>
+      </select>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th><th>Company</th><th>Event date</th><th>Type</th><th>Days till</th><th>Last stage</th><th>Status</th><th>Next contact</th><th>Notes</th>
+          </tr>
+        </thead>
+        <tbody id="inquiry-tbody"></tbody>
+      </table>
+    </div>
+    <div class="pagination">
+      <span id="pagination-info">Showing 0 of 0</span>
+      <div class="btn-group">
+        <button class="btn btn-sm" onclick="prevPage()">← Prev</button>
+        <button class="btn btn-sm" onclick="nextPage()">Next →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CALENDAR -->
+<div id="page-calendar" class="page">
+  <div class="page-header">
+    <div><div class="page-title">Calendar</div><div class="page-sub">Events overview</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Upcoming — In progress</div></div>
+      <div id="cal-upcoming"><div class="empty"><div class="empty-title">No upcoming events</div></div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Finished events</div></div>
+      <div id="cal-finished"><div class="empty"><div class="empty-title">No finished events</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div id="page-content" class="page">
+  <div class="page-header">
+    <div><div class="page-title">Content planner</div><div class="page-sub">Plan your Instagram content</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">This week</div>
+    </div>
+    <div class="week-grid" id="week-grid"></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">Add post idea</div></div>
+    <div class="form-row" style="margin-bottom:12px">
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Day</label>
+        <select class="form-input" id="post-day">
+          <option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Type</label>
+        <select class="form-input" id="post-type">
+          <option>Reel</option><option>Carousel</option><option>Story</option><option>Static post</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Caption / idea</label>
+      <textarea class="form-input" id="post-caption" placeholder="Write your post idea or caption here..."></textarea>
+    </div>
+    <button class="btn btn-primary" onclick="addPost()">+ Add to planner</button>
+  </div>
+</div>
+
+<!-- REVIEWS -->
+<div id="page-reviews" class="page">
+  <div class="page-header">
+    <div><div class="page-title">Reviews</div><div class="page-sub">Respond to Google reviews with Mr Papa voice</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">Generate a response</div></div>
+    <div class="form-row" style="margin-bottom:12px">
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Reviewer name</label>
+        <input class="form-input" id="reviewer-name" placeholder="e.g. Sarah M.">
+      </div>
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Star rating</label>
+        <select class="form-input" id="review-stars">
+          <option value="5">⭐⭐⭐⭐⭐ 5 stars</option>
+          <option value="4">⭐⭐⭐⭐ 4 stars</option>
+          <option value="3">⭐⭐⭐ 3 stars</option>
+          <option value="2">⭐⭐ 2 stars</option>
+          <option value="1">⭐ 1 star</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Review content</label>
+      <textarea class="review-box" id="review-content" placeholder="Paste the review here..."></textarea>
+    </div>
+    <button class="btn btn-lime" onclick="generateReviewPrompt()">★ Generate response prompt</button>
+    <div class="ai-draft" id="review-draft">
+      <div class="ai-draft-label">★ Copy this prompt into Claude</div>
+      <div id="review-draft-text" style="font-size:13px;line-height:1.65;color:var(--text)"></div>
+      <div style="margin-top:10px">
+        <button class="btn btn-sm" onclick="copyReview()">Copy prompt</button>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">How to use</div></div>
+    <ol style="font-size:13px;color:var(--gray-dark);line-height:2.2;padding-left:18px">
+      <li>Paste the review and fill reviewer name + stars</li>
+      <li>Click "Generate response prompt"</li>
+      <li>Copy the prompt and paste it into Claude</li>
+      <li>Copy Claude's response and paste it as your Google reply</li>
+    </ol>
+  </div>
+</div>
+
+<!-- IMPORT -->
+<div id="page-import" class="page">
+  <div class="page-header">
+    <div><div class="page-title">Import CSV</div><div class="page-sub">Upload your existing data</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title" style="margin-bottom:14px">Upload your CSV file</div>
+    <div class="import-zone" id="drop-zone" onclick="document.getElementById('csv-file').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event)">
+      <div class="import-icon">↑</div>
+      <div class="import-title">Drop CSV here or click to browse</div>
+      <div class="import-sub">Export your Excel as CSV → File → Save As → CSV format</div>
+    </div>
+    <input type="file" id="csv-file" accept=".csv" onchange="handleFile(event)">
+    <div class="import-success" id="import-success">
+      <span style="font-size:20px">✓</span>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#1B7340" id="import-msg">Import successful!</div>
+        <div style="font-size:12px;color:#1B7340" id="import-sub-msg"></div>
+      </div>
+    </div>
+    <div style="margin-top:20px">
+      <div style="font-size:12px;font-weight:700;color:var(--gray-dark);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">Expected columns</div>
+      <div style="font-family:'DM Mono',monospace;font-size:11px;background:var(--gray-light);padding:12px;border-radius:var(--radius-sm);color:var(--gray-dark);line-height:2">
+        NAME, COMPANY, EVENT DATE, TYPE OF EVENT, NUMBER, EMAIL,<br>
+        DAYS TILL EVENT, FIRST CONTACT, LAST UPDATE, NEXT CONTACT,<br>
+        PRIORITY, LAST STAGE, STATUS, NOTES
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">Manage data</div></div>
+    <div class="btn-group">
+      <button class="btn" onclick="exportCSV()">↓ Export current data</button>
+      <button class="btn" style="border-color:#EF4444;color:#EF4444" onclick="clearData()">✕ Clear all data</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div id="page-settings" class="page">
+  <div class="page-header">
+    <div><div class="page-title">Settings</div><div class="page-sub">Business details</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title" style="margin-bottom:16px">Business info</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Business name</label><input class="form-input" value="Mr Papa Catering"></div>
+      <div class="form-group"><label class="form-label">Your name</label><input class="form-input" value="Carla"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" value="letschat@mrpapa.com.au"></div>
+      <div class="form-group"><label class="form-label">Location</label><input class="form-input" value="Fyshwick, Canberra ACT"></div>
+    </div>
+    <button class="btn btn-primary">✓ Save settings</button>
+  </div>
+</div>
+
+</main>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">New inquiry</div>
+      <button class="close-btn" onclick="closeModal()">✕</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Name *</label><input class="form-input" id="f-name" placeholder="First Last"></div>
+      <div class="form-group"><label class="form-label">Company</label><input class="form-input" id="f-company" placeholder="Company name"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="f-email" placeholder="email@example.com"></div>
+      <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="f-phone" placeholder="04xx xxx xxx"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Event date</label><input class="form-input" id="f-date" type="date"></div>
+      <div class="form-group"><label class="form-label">Type of event</label>
+        <select class="form-input" id="f-type">
+          <option value="">Select type</option>
+          <option>Wedding</option><option>Corporate</option><option>Birthday</option><option>Private celebration</option><option>Community</option><option>Market</option><option>Delivery</option><option>Pick-up</option><option>Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Guests</label><input class="form-input" id="f-guests" type="number" placeholder="e.g. 50"></div>
+      <div class="form-group"><label class="form-label">Status</label>
+        <select class="form-input" id="f-status">
+          <option value="Progress">Progress</option><option value="Finished">Finished</option><option value="Dropped">Dropped</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Last stage</label><input class="form-input" id="f-stage" placeholder="e.g. Quote sent"></div>
+      <div class="form-group"><label class="form-label">Next contact</label><input class="form-input" id="f-next" type="date"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Notes</label><textarea class="form-input" id="f-notes" placeholder="Dietary requirements, special requests..."></textarea></div>
+    <input type="hidden" id="f-id">
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveInquiry()">✓ Save inquiry</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let inquiries = JSON.parse(localStorage.getItem('mp_inquiries_v2') || '[]');
+let posts = JSON.parse(localStorage.getItem('mp_posts_v2') || '[]');
+let currentPage = 1;
+const PER_PAGE = 25;
+let filtered = [];
+let editingId = null;
+const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if (el) el.classList.add('active');
+  currentPage = 1;
+  if (id === 'dashboard') updateDashboard();
+  if (id === 'inquiries') filterTable();
+  if (id === 'calendar') renderCalendar();
+  if (id === 'content') renderWeek();
+}
+
+function fmtDate(str) {
+  if (!str) return '';
+  const s = str.trim();
+  if (s.includes('/')) {
+    const p = s.split('/');
+    if (p.length === 3) return parseInt(p[0]) + ' ' + months[parseInt(p[1])-1] + ' ' + p[2];
+  }
+  if (s.includes('-') && s.length >= 8) {
+    const [y,m,d] = s.split('-');
+    return parseInt(d) + ' ' + months[parseInt(m)-1] + ' ' + y;
+  }
+  return s;
+}
+
+function parseDate(str) {
+  if (!str) return null;
+  const s = str.trim();
+  if (s.includes('/')) {
+    const p = s.split('/');
+    if (p.length === 3) {
+      let [d,m,y] = p;
+      d = d.padStart(2,'0'); m = m.padStart(2,'0');
+      if (y.length === 2) y = '20' + y;
+      return y + '-' + m + '-' + d;
+    }
+  }
+  return s;
+}
+
+function statusBadge(s) {
+  const map = { Progress:'b-progress', Finished:'b-finished', Dropped:'b-dropped' };
+  return '<span class="badge ' + (map[s]||'b-dropped') + '">' + (s||'—') + '</span>';
+}
+
+function daysTill(dateStr) {
+  if (!dateStr) return null;
+  const iso = parseDate(dateStr);
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (isNaN(d)) return null;
+  const today = new Date(); today.setHours(0,0,0,0);
+  return Math.round((d - today) / 86400000);
+}
+
+function daysTillBadge(dateStr) {
+  const d = daysTill(dateStr);
+  if (d === null) return '<span style="color:var(--gray-dark)">—</span>';
+  const style = d < 0 ? 'color:var(--gray-dark)' : d <= 7 ? 'color:#B91C1C;font-weight:700' : d <= 30 ? 'color:#B45309' : 'color:#1B7340';
+  return '<span class="days-badge" style="' + style + '">' + d + 'd</span>';
+}
+
+function renderTable() {
+  const tbody = document.getElementById('inquiry-tbody');
+  const start = (currentPage - 1) * PER_PAGE;
+  const page = filtered.slice(start, start + PER_PAGE);
+  if (!page.length) {
+    tbody.innerHTML = '<tr><td colspan="9"><div class="empty"><div class="empty-title">No inquiries found</div><div style="font-size:12px;color:var(--gray-dark)">Try adjusting your filters or import your CSV</div></div></td></tr>';
+    document.getElementById('pagination-info').textContent = 'Showing 0 of 0';
+    return;
+  }
+  tbody.innerHTML = page.map(i => '<tr onclick="editInquiry(' + i.id + ')">' +
+    '<td style="font-weight:600">' + (i.name||'') + '</td>' +
+    '<td style="color:var(--gray-dark)">' + (i.company&&i.company!=='-'?i.company:'') + '</td>' +
+    '<td style="color:var(--gray-dark)">' + (fmtDate(i.date)||'—') + '</td>' +
+    '<td style="color:var(--gray-dark)">' + (i.type||'') + '</td>' +
+    '<td>' + daysTillBadge(i.date) + '</td>' +
+    '<td style="color:var(--gray-dark);max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (i.stage||'') + '</td>' +
+    '<td>' + statusBadge(i.status) + '</td>' +
+    '<td style="color:var(--gray-dark)">' + (fmtDate(i.nextContact)||'—') + '</td>' +
+    '<td style="color:var(--gray-dark);max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="' + (i.notes||'').replace(/"/g,'') + '">' + (i.notes||'') + '</td>' +
+    '</tr>').join('');
+  document.getElementById('pagination-info').textContent = 'Showing ' + (start+1) + '–' + Math.min(start+PER_PAGE, filtered.length) + ' of ' + filtered.length;
+  document.getElementById('inquiry-count-label').textContent = inquiries.length + ' total · ' + filtered.length + ' shown';
+}
+
+function filterTable() {
+  const q = (document.getElementById('search-input').value||'').toLowerCase();
+  const st = document.getElementById('filter-status').value;
+  const ty = document.getElementById('filter-type').value;
+  filtered = inquiries.filter(i => {
+    const text = (i.name+' '+i.company+' '+i.type+' '+i.notes).toLowerCase();
+    return (!q || text.includes(q)) && (!st || (i.status||'').includes(st)) && (!ty || (i.type||'').toLowerCase().includes(ty.toLowerCase()));
+  });
+  currentPage = 1;
+  renderTable();
+}
+
+function prevPage() { if (currentPage > 1) { currentPage--; renderTable(); } }
+function nextPage() { if (currentPage * PER_PAGE < filtered.length) { currentPage++; renderTable(); } }
+
+function updateDashboard() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const active = inquiries.filter(i => i.status === 'Progress').length;
+  const finished = inquiries.filter(i => i.status === 'Finished').length;
+  const dropped = inquiries.filter(i => i.status === 'Dropped').length;
+  const followup = inquiries.filter(i => {
+    if (!i.nextContact || i.status !== 'Progress') return false;
+    const iso = parseDate(i.nextContact); if (!iso) return false;
+    const d = new Date(iso); d.setHours(0,0,0,0);
+    return d <= today;
+  }).length;
+  document.getElementById('m-active').textContent = active;
+  document.getElementById('m-total').textContent = inquiries.length;
+  document.getElementById('m-finished').textContent = finished;
+  document.getElementById('m-followup').textContent = followup;
+
+  const upcoming = inquiries.filter(i => {
+    if (i.status !== 'Progress' || !i.date) return false;
+    const iso = parseDate(i.date); if (!iso) return false;
+    const d = new Date(iso); d.setHours(0,0,0,0);
+    return d >= today;
+  }).sort((a,b) => (parseDate(a.date)||'').localeCompare(parseDate(b.date)||'')).slice(0,5);
+
+  const ul = document.getElementById('upcoming-list');
+  if (upcoming.length) {
+    ul.innerHTML = upcoming.map(i => {
+      const iso = parseDate(i.date);
+      const d = iso ? new Date(iso) : null;
+      return '<div class="event-row"><div class="event-date-box"><div class="event-day">' + (d?d.getDate():'?') + '</div><div class="event-month">' + (d?months[d.getMonth()]:'?') + '</div></div><div class="event-info"><div class="event-name">' + i.name + '</div><div class="event-detail">' + (i.type||'Event') + (i.stage?' · '+i.stage:'') + '</div></div>' + statusBadge(i.status) + '</div>';
+    }).join('');
+  } else {
+    ul.innerHTML = '<div class="empty"><div class="empty-title">No upcoming in-progress events</div></div>';
+  }
+
+  const total = inquiries.length || 1;
+  const sb = document.getElementById('status-breakdown');
+  sb.innerHTML = [
+    { label: 'In progress', count: active, fill: 'progress-fill-lime', pct: Math.round(active/total*100) },
+    { label: 'Finished', count: finished, fill: 'progress-fill-pink', pct: Math.round(finished/total*100) },
+    { label: 'Dropped', count: dropped, fill: 'progress-fill-gray', pct: Math.round(dropped/total*100) }
+  ].map(s => '<div style="margin-bottom:12px"><div class="progress-row"><span style="font-size:12px;font-weight:600;color:var(--text)">' + s.label + '</span><span style="font-size:18px;font-weight:700;color:var(--black)">' + s.count + '</span></div><div class="progress-bar"><div class="' + s.fill + '" style="width:' + s.pct + '%"></div></div><div style="font-size:11px;color:var(--gray-dark)">' + s.pct + '% of total</div></div>').join('');
+}
+
+function renderCalendar() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const upcoming = inquiries.filter(i => {
+    if (!i.date || i.status !== 'Progress') return false;
+    const iso = parseDate(i.date); if (!iso) return false;
+    const d = new Date(iso); d.setHours(0,0,0,0);
+    return d >= today;
+  }).sort((a,b) => (parseDate(a.date)||'').localeCompare(parseDate(b.date)||'')).slice(0,20);
+
+  const fin = inquiries.filter(i => i.date && i.status === 'Finished').sort((a,b) => (parseDate(b.date)||'').localeCompare(parseDate(a.date)||'')).slice(0,20);
+
+  const renderList = (list, id) => {
+    const el = document.getElementById(id);
+    el.innerHTML = list.length ? list.map(i => {
+      const iso = parseDate(i.date); const d = iso ? new Date(iso) : null;
+      return '<div class="event-row"><div class="event-date-box"><div class="event-day">' + (d?d.getDate():'?') + '</div><div class="event-month">' + (d?months[d.getMonth()]:'?') + '</div></div><div class="event-info"><div class="event-name">' + i.name + (i.company&&i.company!=='-'?' · '+i.company:'') + '</div><div class="event-detail">' + (i.type||'') + (i.notes?' · '+i.notes:'') + '</div></div>' + statusBadge(i.status) + '</div>';
+    }).join('') : '<div class="empty"><div class="empty-title">No events</div></div>';
+  };
+  renderList(upcoming, 'cal-upcoming');
+  renderList(fin, 'cal-finished');
+}
+
+function renderWeek() {
+  const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  const g = document.getElementById('week-grid');
+  g.innerHTML = days.map(d => '<div class="day-head">' + d.slice(0,3) + '</div>').join('') +
+    days.map(d => {
+      const p = posts.find(x => x.day === d);
+      return '<div class="day-cell ' + (p?'has-post':'') + '" onclick="focusDay(\'' + d + '\')">' + (p ? '<div class="post-tag">' + p.type + '</div><div class="post-preview">' + p.caption.slice(0,60) + (p.caption.length>60?'...':'') + '</div>' : '') + '</div>';
+    }).join('');
+}
+
+function focusDay(day) { document.getElementById('post-day').value = day; document.getElementById('post-caption').focus(); }
+
+function addPost() {
+  const day = document.getElementById('post-day').value;
+  const type = document.getElementById('post-type').value;
+  const caption = document.getElementById('post-caption').value;
+  if (!caption.trim()) return;
+  posts = posts.filter(p => p.day !== day);
+  posts.push({ day, type, caption });
+  localStorage.setItem('mp_posts_v2', JSON.stringify(posts));
+  document.getElementById('post-caption').value = '';
+  renderWeek();
+}
+
+function generateReviewPrompt() {
+  const name = document.getElementById('reviewer-name').value || 'the customer';
+  const stars = document.getElementById('review-stars').value;
+  const review = document.getElementById('review-content').value;
+  if (!review.trim()) { alert('Please paste a review first.'); return; }
+  const prompt = 'Generate a Google review response for Mr Papa Catering. Reviewer: ' + name + '. Stars: ' + stars + '/5. Review: "' + review + '". Use a warm, casual Australian tone. Keep it genuine, concise, and personal. Sign off as Carlos from Mr Papa Catering.';
+  const el = document.getElementById('review-draft');
+  document.getElementById('review-draft-text').textContent = prompt;
+  el.style.display = 'block';
+}
+
+function copyReview() {
+  navigator.clipboard.writeText(document.getElementById('review-draft-text').textContent).then(() => alert('Copied to clipboard!')).catch(() => {});
+}
+
+function openModal(id) {
+  editingId = id || null;
+  document.getElementById('modal-title').textContent = id ? 'Edit inquiry' : 'New inquiry';
+  if (id) {
+    const i = inquiries.find(x => x.id === id);
+    if (i) {
+      document.getElementById('f-name').value = i.name||'';
+      document.getElementById('f-company').value = i.company||'';
+      document.getElementById('f-email').value = i.email||'';
+      document.getElementById('f-phone').value = i.phone||'';
+      document.getElementById('f-date').value = parseDate(i.date)||'';
+      document.getElementById('f-type').value = i.type||'';
+      document.getElementById('f-guests').value = i.guests||'';
+      document.getElementById('f-status').value = i.status||'Progress';
+      document.getElementById('f-stage').value = i.stage||'';
+      document.getElementById('f-next').value = parseDate(i.nextContact)||'';
+      document.getElementById('f-notes').value = i.notes||'';
+    }
+  } else {
+    ['f-name','f-company','f-email','f-phone','f-date','f-guests','f-stage','f-next','f-notes'].forEach(id => document.getElementById(id).value='');
+    document.getElementById('f-type').value = '';
+    document.getElementById('f-status').value = 'Progress';
+  }
+  document.getElementById('modal').classList.add('open');
+}
+
+function editInquiry(id) { openModal(id); }
+function closeModal() { document.getElementById('modal').classList.remove('open'); editingId = null; }
+
+function saveInquiry() {
+  const today = new Date().toISOString().split('T')[0];
+  const data = {
+    id: editingId || Date.now(),
+    name: document.getElementById('f-name').value.trim() || 'Unknown',
+    company: document.getElementById('f-company').value.trim(),
+    email: document.getElementById('f-email').value.trim(),
+    phone: document.getElementById('f-phone').value.trim(),
+    date: document.getElementById('f-date').value,
+    type: document.getElementById('f-type').value,
+    guests: document.getElementById('f-guests').value,
+    status: document.getElementById('f-status').value,
+    stage: document.getElementById('f-stage').value,
+    nextContact: document.getElementById('f-next').value,
+    notes: document.getElementById('f-notes').value.trim(),
+    lastUpdate: today,
+    firstContact: editingId ? (inquiries.find(x=>x.id===editingId)||{}).firstContact||today : today
+  };
+  if (editingId) { const idx = inquiries.findIndex(x => x.id === editingId); if (idx !== -1) inquiries[idx] = data; }
+  else inquiries.push(data);
+  localStorage.setItem('mp_inquiries_v2', JSON.stringify(inquiries));
+  closeModal(); filterTable(); updateDashboard();
+}
+
+function parseCSV(text) {
+  const lines = text.split('\n');
+  let headers = []; let dataStart = 0;
+  for (let i = 0; i < Math.min(5, lines.length); i++) {
+    const cols = parseCSVLine(lines[i]);
+    if (cols.some(c => /name/i.test(c))) { headers = cols.map(c => c.trim().toLowerCase()); dataStart = i+1; break; }
+  }
+  if (!headers.length) return [];
+  return lines.slice(dataStart).map((line, idx) => {
+    const cols = parseCSVLine(line);
+    if (cols.every(c => !c.trim())) return null;
+    const row = {};
+    headers.forEach((h,i) => { row[h] = (cols[i]||'').trim(); });
+    if (!row['name']||!row['name'].trim()) return null;
+    const s = row['status']||'';
+    const status = s.toLowerCase()==='finished'?'Finished':s.toLowerCase()==='dropped'?'Dropped':'Progress';
+    return { id: Date.now()+idx, name:row['name']||'', company:row['company']||'', email:row['email']||'', phone:row['number']||'', date:row['event date']||'', type:row['type of event']||'', stage:row['last stage']||'', status, nextContact:row['next contact']||'', firstContact:row['first contact']||'', lastUpdate:row['last update']||'', notes:row['notes']||'', guests:'' };
+  }).filter(Boolean);
+}
+
+function parseCSVLine(line) {
+  const r = []; let c = ''; let q = false;
+  for (let ch of line) { if (ch==='"') q=!q; else if (ch===','&&!q) { r.push(c); c=''; } else c+=ch; }
+  r.push(c); return r;
+}
+
+function handleFile(e) { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = ev => importData(ev.target.result); r.readAsText(f); }
+function handleDrop(e) { e.preventDefault(); document.getElementById('drop-zone').classList.remove('drag'); const f = e.dataTransfer.files[0]; if (!f) return; const r = new FileReader(); r.onload = ev => importData(ev.target.result); r.readAsText(f); }
+
+function importData(text) {
+  const parsed = parseCSV(text);
+  if (!parsed.length) { alert('Could not parse CSV. Check column headers.'); return; }
+  inquiries = parsed;
+  localStorage.setItem('mp_inquiries_v2', JSON.stringify(inquiries));
+  const s = document.getElementById('import-success');
+  document.getElementById('import-msg').textContent = 'Imported ' + parsed.length + ' inquiries!';
+  document.getElementById('import-sub-msg').textContent = 'Check the Inquiries tab.';
+  s.style.display = 'flex';
+  setTimeout(() => s.style.display='none', 5000);
+  filtered = [...inquiries];
+  updateDashboard();
+}
+
+function exportCSV() {
+  const h = ['Name','Company','Email','Phone','Event Date','Type','Guests','Status','Last Stage','Next Contact','First Contact','Last Update','Notes'];
+  const rows = inquiries.map(i => [i.name,i.company,i.email,i.phone,i.date,i.type,i.guests,i.status,i.stage,i.nextContact,i.firstContact,i.lastUpdate,i.notes].map(v => '"'+(v||'').replace(/"/g,'""')+'"'));
+  const csv = [h.join(','), ...rows.map(r => r.join(','))].join('\n');
+  const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,'+encodeURIComponent(csv); a.download = 'mrpapa-inquiries.csv'; a.click();
+}
+
+function clearData() {
+  if (confirm('Clear ALL data? Cannot be undone.')) { inquiries = []; filtered = []; localStorage.removeItem('mp_inquiries_v2'); updateDashboard(); filterTable(); }
+}
+
+filtered = [...inquiries];
+updateDashboard();
+filterTable();
+renderWeek();
+</script>
+</body>
+</html>
