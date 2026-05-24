@@ -219,10 +219,17 @@ input[type="file"] { display: none; }
 
 <!-- CALENDAR -->
 <div id="page-calendar" class="page">
-  <div class="page-header"><div><div class="page-title">Calendar</div><div class="page-sub">Events overview</div></div></div>
-  <div class="grid-2">
-    <div class="card"><div class="card-header"><div class="card-title">Upcoming — In progress</div></div><div id="cal-upcoming"><div class="loading-bar"><div class="spinner"></div> Loading...</div></div></div>
-    <div class="card"><div class="card-header"><div class="card-title">Finished events</div></div><div id="cal-finished"><div class="loading-bar"><div class="spinner"></div> Loading...</div></div></div>
+  <div class="page-header"><div><div class="page-title">Calendar</div><div class="page-sub">What's on your plate today and upcoming</div></div></div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">📋 Follow ups due today</div></div>
+    <div id="cal-today"><div class="loading-bar"><div class="spinner"></div> Loading...</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">🎉 Upcoming confirmed events</div>
+      <span style="font-size:11px;color:var(--gray-dark)">Payment received or complete · In progress</span>
+    </div>
+    <div id="cal-upcoming"><div class="loading-bar"><div class="spinner"></div> Loading...</div></div>
   </div>
 </div>
 
@@ -528,10 +535,61 @@ function updateDashboard() {
 
 function renderCalendar() {
   const today = new Date(); today.setHours(0,0,0,0);
-  const up = inquiries.filter(i => { if (!i.date || i.status !== 'Progress') return false; const iso = parseDate(i.date); if (!iso) return false; const d = new Date(iso); d.setHours(0,0,0,0); return d >= today; }).sort((a,b) => (parseDate(a.date)||'').localeCompare(parseDate(b.date)||'')).slice(0,20);
-  const fin = inquiries.filter(i => i.date && i.status === 'Finished').sort((a,b) => (parseDate(b.date)||'').localeCompare(parseDate(a.date)||'')).slice(0,20);
-  const mkList = (list, id) => { document.getElementById(id).innerHTML = list.length ? list.map(i => { const iso = parseDate(i.date); const d = iso ? new Date(iso) : null; return '<div class="event-row"><div class="event-date-box"><div class="event-day">' + (d?d.getDate():'?') + '</div><div class="event-month">' + (d?months[d.getMonth()]:'?') + '</div></div><div class="event-info"><div class="event-name">' + i.name + (i.company&&i.company!=='-'?' · '+i.company:'') + '</div><div class="event-detail">' + (i.type||'') + '</div></div>' + statusBadge(i.status) + '</div>'; }).join('') : '<div class="empty"><div class="empty-title">No events</div></div>'; };
-  mkList(up,'cal-upcoming'); mkList(fin,'cal-finished');
+
+  // Follow ups due today or overdue
+  const todayFollowUps = inquiries.filter(i => {
+    if (!i.nextContact || i.status !== 'Progress') return false;
+    const iso = parseDate(i.nextContact); if (!iso) return false;
+    const d = new Date(iso); d.setHours(0,0,0,0);
+    return d <= today;
+  }).sort((a,b) => (parseDate(a.nextContact)||'').localeCompare(parseDate(b.nextContact)||''));
+
+  const calToday = document.getElementById('cal-today');
+  if (todayFollowUps.length) {
+    calToday.innerHTML = todayFollowUps.map(i => {
+      const iso = parseDate(i.nextContact); const d = iso ? new Date(iso) : null;
+      const isOverdue = d && d < today;
+      return '<div class="event-row">' +
+        '<div class="event-date-box" style="background:' + (isOverdue ? 'var(--melon)' : 'var(--lime)') + '">' +
+        '<div class="event-day">' + (d?d.getDate():'?') + '</div>' +
+        '<div class="event-month">' + (d?months[d.getMonth()]:'?') + '</div></div>' +
+        '<div class="event-info">' +
+        '<div class="event-name">' + i.name + (i.company&&i.company!=='-'?' · '+i.company:'') + '</div>' +
+        '<div class="event-detail">' + (i.stage||'No stage') + (isOverdue ? ' · <span style="color:#B91C1C;font-weight:600">Overdue</span>' : ' · <span style="color:#1B7340;font-weight:600">Due today</span>') + '</div>' +
+        '</div>' + statusBadge(i.status) + '</div>';
+    }).join('');
+  } else {
+    calToday.innerHTML = '<div class="empty"><div class="empty-title">No follow ups due today 🎉</div><div style="font-size:12px;color:var(--gray-dark)">You\'re all caught up!</div></div>';
+  }
+
+  // Upcoming confirmed events — payment received or complete, in progress
+  const paymentKeywords = ['payment received', 'payment complete', 'payment done', 'paid', 'deposit received', 'deposit paid'];
+  const upcomingConfirmed = inquiries.filter(i => {
+    if (i.status !== 'Progress' || !i.date) return false;
+    const iso = parseDate(i.date); if (!iso) return false;
+    const d = new Date(iso); d.setHours(0,0,0,0);
+    if (d < today) return false;
+    const stage = (i.stage||'').toLowerCase();
+    return paymentKeywords.some(k => stage.includes(k));
+  }).sort((a,b) => (parseDate(a.date)||'').localeCompare(parseDate(b.date)||''));
+
+  const calUpcoming = document.getElementById('cal-upcoming');
+  if (upcomingConfirmed.length) {
+    calUpcoming.innerHTML = upcomingConfirmed.map(i => {
+      const iso = parseDate(i.date); const d = iso ? new Date(iso) : null;
+      const daysLeft = daysTill(i.date);
+      return '<div class="event-row">' +
+        '<div class="event-date-box">' +
+        '<div class="event-day">' + (d?d.getDate():'?') + '</div>' +
+        '<div class="event-month">' + (d?months[d.getMonth()]:'?') + '</div></div>' +
+        '<div class="event-info">' +
+        '<div class="event-name">' + i.name + (i.company&&i.company!=='-'?' · '+i.company:'') + '</div>' +
+        '<div class="event-detail">' + (i.type||'Event') + ' · ' + (i.stage||'') + (daysLeft !== null ? ' · <span style="font-weight:600">' + daysLeft + ' days away</span>' : '') + '</div>' +
+        '</div>' + statusBadge(i.status) + '</div>';
+    }).join('');
+  } else {
+    calUpcoming.innerHTML = '<div class="empty"><div class="empty-title">No upcoming confirmed events</div><div style="font-size:12px;color:var(--gray-dark)">Events with payment received or complete will appear here</div></div>';
+  }
 }
 
 function renderWeek() {
