@@ -145,7 +145,7 @@ input[type="file"] { display: none; }
 <!-- DASHBOARD -->
 <div id="page-dashboard" class="page active">
   <div class="page-header">
-    <div><div class="page-title">Dashboard</div><div class="page-sub">Welcome back, Carla 🧡</div></div>
+    <div><div class="page-title">Dashboard</div><div class="page-sub">Welcome back, Mr Papa 🧡</div></div>
     <div class="btn-group">
       <button class="btn" onclick="syncFromAirtable()">⟳ Sync Airtable</button>
       <button class="btn btn-primary" onclick="showPage('inquiries', document.querySelectorAll('.nav-item')[1]); openModal()">+ New inquiry</button>
@@ -189,6 +189,16 @@ input[type="file"] { display: none; }
         <option value="Private">Private</option>
         <option value="Community">Community</option>
         <option value="Market">Market</option>
+      </select>
+      <select class="filter-select" id="sort-field" onchange="filterTable()">
+        <option value="">Sort by...</option>
+        <option value="nextContact-asc">Next contact ↑ (soonest first)</option>
+        <option value="nextContact-desc">Next contact ↓ (latest first)</option>
+        <option value="date-asc">Event date ↑ (soonest first)</option>
+        <option value="date-desc">Event date ↓ (latest first)</option>
+        <option value="name-asc">Name A → Z</option>
+        <option value="name-desc">Name Z → A</option>
+        <option value="status-asc">Status A → Z</option>
       </select>
     </div>
     <div style="overflow-x:auto">
@@ -466,10 +476,27 @@ function filterTable() {
   const q = (document.getElementById('search-input').value||'').toLowerCase();
   const st = document.getElementById('filter-status').value;
   const ty = document.getElementById('filter-type').value;
+  const sort = document.getElementById('sort-field').value;
+
   filtered = inquiries.filter(i => {
     const text = (i.name+' '+i.company+' '+i.type+' '+i.notes).toLowerCase();
     return (!q||text.includes(q)) && (!st||(i.status||'').includes(st)) && (!ty||(i.type||'').toLowerCase().includes(ty.toLowerCase()));
   });
+
+  if (sort) {
+    const [field, dir] = sort.split('-');
+    filtered.sort((a, b) => {
+      let va = '', vb = '';
+      if (field === 'nextContact') { va = parseDate(a.nextContact)||'9999'; vb = parseDate(b.nextContact)||'9999'; }
+      else if (field === 'date') { va = parseDate(a.date)||'9999'; vb = parseDate(b.date)||'9999'; }
+      else if (field === 'name') { va = (a.name||'').toLowerCase(); vb = (b.name||'').toLowerCase(); }
+      else if (field === 'status') { va = (a.status||'').toLowerCase(); vb = (b.status||'').toLowerCase(); }
+      if (va < vb) return dir === 'asc' ? -1 : 1;
+      if (va > vb) return dir === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
+
   currentPage = 1; renderTable();
 }
 
