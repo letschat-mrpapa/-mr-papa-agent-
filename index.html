@@ -422,7 +422,7 @@ async function syncFromAirtable() {
       nextContact: r.fields['NEXT CONTACT'] || r.fields['Next contact'] || '',
       firstContact: r.fields['FIRST CONTACT'] || r.fields['First contact'] || '',
       lastUpdate: r.fields['LAST UPDATE'] || r.fields['Last update'] || '',
-      notes: r.fields['NOTES - add date'] || r.fields['NOTES'] || r.fields['Notes'] || '',
+      notes: r.fields['NOTES'] || r.fields['Notes'] || '',
       guests: r.fields['GUESTS'] || ''
     }));
 
@@ -730,7 +730,7 @@ async function saveInquiry() {
   if (stageVal) fields['LAST STAGE'] = stageVal;
   
   const notesVal = document.getElementById('f-notes').value.trim();
-  if (notesVal) fields['NOTES - add date'] = notesVal;
+  if (notesVal) fields['NOTES'] = notesVal;
 
   // Dates must be YYYY-MM-DD for Airtable date fields
   const dateVal = document.getElementById('f-date').value;
