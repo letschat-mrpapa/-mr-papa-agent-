@@ -157,9 +157,27 @@ input[type="file"] { display: none; }
     <div class="metric metric-pink"><div class="metric-label">Finished</div><div class="metric-value" id="m-finished">—</div><div class="metric-sub">Completed events</div></div>
     <div class="metric metric-melon"><div class="metric-label">Follow ups</div><div class="metric-value" id="m-followup">—</div><div class="metric-sub">Due today or overdue</div></div>
   </div>
-  <div class="grid-2">
-    <div class="card"><div class="card-header"><div class="card-title">Upcoming events</div></div><div id="upcoming-list"><div class="loading-bar"><div class="spinner"></div> Loading...</div></div></div>
-    <div class="card"><div class="card-header"><div class="card-title">Status breakdown</div></div><div id="status-breakdown"><div class="loading-bar"><div class="spinner"></div> Loading...</div></div></div>
+
+  <!-- Revenue placeholder row -->
+  <div style="margin-bottom:16px">
+    <div class="card" style="border:1.5px dashed var(--gray);background:#FAFAF5">
+      <div class="card-header">
+        <div class="card-title" style="color:var(--gray-dark)">💰 Weekly revenue</div>
+        <span style="font-size:10px;font-weight:600;color:var(--gray-dark);background:var(--gray);padding:3px 8px;border-radius:20px">Coming soon</span>
+      </div>
+      <div style="font-size:13px;color:var(--gray-dark);line-height:1.7">
+        This section will show your weekly revenue once connected to <strong>Xero</strong> and <strong>Square</strong>.<br>
+        <span style="font-size:11px">Configure in Make → Phase 3</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">🎉 This week — Confirmed events</div>
+      <span style="font-size:11px;color:var(--gray-dark)">Payment received or complete · In progress</span>
+    </div>
+    <div id="upcoming-list"><div class="loading-bar"><div class="spinner"></div> Loading...</div></div>
   </div>
 </div>
 
@@ -318,9 +336,12 @@ input[type="file"] { display: none; }
     </div>
     <div class="form-group"><label class="form-label">Notes</label><textarea class="form-input" id="f-notes"></textarea></div>
     <input type="hidden" id="f-airtable-id">
-    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
-      <button class="btn" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" id="save-btn" onclick="saveInquiry()">✓ Save to Airtable</button>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px">
+      <button class="btn" id="delete-btn" onclick="deleteInquiry()" style="border-color:#EF4444;color:#EF4444;display:none">✕ Delete</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" id="save-btn" onclick="saveInquiry()">✓ Save to Airtable</button>
+      </div>
     </div>
   </div>
 </div>
@@ -521,16 +542,19 @@ function updateDashboard() {
   document.getElementById('m-finished').textContent = finished;
   document.getElementById('m-followup').textContent = followup;
 
-  const upcoming = inquiries.filter(i => { if (i.status !== 'Progress' || !i.date) return false; const iso = parseDate(i.date); if (!iso) return false; const d = new Date(iso); d.setHours(0,0,0,0); return d >= today; }).sort((a,b) => (parseDate(a.date)||'').localeCompare(parseDate(b.date)||'')).slice(0,5);
+  const paymentKeywords = ['payment received', 'payment complete', 'payment done', 'paid', 'deposit received', 'deposit paid'];
+  const weekEnd = new Date(today); weekEnd.setDate(weekEnd.getDate() + 7);
+  const upcoming = inquiries.filter(i => {
+    if (i.status !== 'Progress' || !i.date) return false;
+    const iso = parseDate(i.date); if (!iso) return false;
+    const d = new Date(iso); d.setHours(0,0,0,0);
+    if (d < today || d > weekEnd) return false;
+    const stage = (i.stage||'').toLowerCase();
+    return paymentKeywords.some(k => stage.includes(k));
+  }).sort((a,b) => (parseDate(a.date)||'').localeCompare(parseDate(b.date)||'')).slice(0,5);
   const ul = document.getElementById('upcoming-list');
-  ul.innerHTML = upcoming.length ? upcoming.map(i => { const iso = parseDate(i.date); const d = iso ? new Date(iso) : null; return '<div class="event-row"><div class="event-date-box"><div class="event-day">' + (d?d.getDate():'?') + '</div><div class="event-month">' + (d?months[d.getMonth()]:'?') + '</div></div><div class="event-info"><div class="event-name">' + i.name + '</div><div class="event-detail">' + (i.type||'') + (i.stage?' · '+i.stage:'') + '</div></div>' + statusBadge(i.status) + '</div>'; }).join('') : '<div class="empty"><div class="empty-title">No upcoming events</div></div>';
+  ul.innerHTML = upcoming.length ? upcoming.map(i => { const iso = parseDate(i.date); const d = iso ? new Date(iso) : null; const daysLeft = daysTill(i.date); return '<div class="event-row"><div class="event-date-box"><div class="event-day">' + (d?d.getDate():'?') + '</div><div class="event-month">' + (d?months[d.getMonth()]:'?') + '</div></div><div class="event-info"><div class="event-name">' + i.name + '</div><div class="event-detail">' + (i.type||'') + (i.stage?' · '+i.stage:'') + (daysLeft !== null ? ' · <span style="font-weight:600">' + daysLeft + 'd away</span>' : '') + '</div></div>' + statusBadge(i.status) + '</div>'; }).join('') : '<div class="empty"><div class="empty-title">No confirmed events this week</div><div style="font-size:12px;color:var(--gray-dark)">Events with payment received or complete will appear here</div></div>';
 
-  const total = inquiries.length || 1;
-  document.getElementById('status-breakdown').innerHTML = [
-    { label:'In progress', count:active, color:getComputedStyle(document.documentElement).getPropertyValue('--lime').trim() },
-    { label:'Finished', count:finished, color:getComputedStyle(document.documentElement).getPropertyValue('--pink').trim() },
-    { label:'Dropped', count:dropped, color:'#aaa' }
-  ].map(s => '<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><span style="font-size:12px;font-weight:600">' + s.label + '</span><span style="font-size:18px;font-weight:700">' + s.count + '</span></div><div class="progress-bar"><div style="height:100%;background:' + s.color + ';width:' + Math.round(s.count/total*100) + '%;border-radius:3px"></div></div><div style="font-size:11px;color:var(--gray-dark)">' + Math.round(s.count/total*100) + '% of total</div></div>').join('');
 }
 
 function renderCalendar() {
@@ -624,6 +648,7 @@ function copyReview() { navigator.clipboard.writeText(document.getElementById('r
 function openModal(id) {
   editingAirtableId = id || null;
   document.getElementById('modal-title').textContent = id ? 'Edit inquiry' : 'New inquiry';
+  document.getElementById('delete-btn').style.display = id ? 'inline-flex' : 'none';
   if (id) {
     const i = inquiries.find(x => x.id === id);
     if (i) {
@@ -649,21 +674,56 @@ function openModal(id) {
 function editInquiry(id) { openModal(id); }
 function closeModal() { document.getElementById('modal').classList.remove('open'); editingAirtableId = null; }
 
+async function deleteInquiry() {
+  if (!editingAirtableId) return;
+  if (!confirm('Are you sure you want to delete this inquiry? This cannot be undone.')) return;
+  const btn = document.getElementById('delete-btn');
+  btn.textContent = '⟳ Deleting...'; btn.disabled = true;
+  try {
+    await fetchAirtable('/' + editingAirtableId, { method: 'DELETE' });
+    closeModal();
+    await syncFromAirtable();
+  } catch(e) {
+    alert('Error deleting. Check your connection.');
+    btn.textContent = '✕ Delete'; btn.disabled = false;
+    console.error(e);
+  }
+}
+
 async function saveInquiry() {
   const btn = document.getElementById('save-btn');
   btn.textContent = '⟳ Saving...'; btn.disabled = true;
-  const fields = {
-    'NAME': document.getElementById('f-name').value.trim() || 'Unknown',
-    'COMPANY': document.getElementById('f-company').value.trim(),
-    'EMAIL': document.getElementById('f-email').value.trim(),
-    'NUMBER': document.getElementById('f-phone').value.trim(),
-    'TYPE OF EVENT': document.getElementById('f-type').value,
-    'STATUS': document.getElementById('f-status').value,
-    'LAST STAGE': document.getElementById('f-stage').value,
-    'NOTES': document.getElementById('f-notes').value.trim()
-  };
+  
+  const fields = {};
+  
+  const nameVal = document.getElementById('f-name').value.trim();
+  if (nameVal) fields['NAME'] = nameVal || 'Unknown';
+  
+  const companyVal = document.getElementById('f-company').value.trim();
+  if (companyVal) fields['COMPANY'] = companyVal;
+  
+  const emailVal = document.getElementById('f-email').value.trim();
+  if (emailVal) fields['EMAIL'] = emailVal;
+  
+  const phoneVal = document.getElementById('f-phone').value.trim();
+  if (phoneVal) fields['NUMBER'] = phoneVal;
+  
+  const typeVal = document.getElementById('f-type').value;
+  if (typeVal) fields['TYPE OF EVENT'] = typeVal;
+  
+  const statusVal = document.getElementById('f-status').value;
+  if (statusVal) fields['STATUS'] = statusVal;
+  
+  const stageVal = document.getElementById('f-stage').value.trim();
+  if (stageVal) fields['LAST STAGE'] = stageVal;
+  
+  const notesVal = document.getElementById('f-notes').value.trim();
+  if (notesVal) fields['NOTES'] = notesVal;
+
+  // Handle dates - send as ISO format YYYY-MM-DD
   const dateVal = document.getElementById('f-date').value;
   if (dateVal) fields['EVENT DATE'] = dateVal;
+  
   const nextVal = document.getElementById('f-next').value;
   if (nextVal) fields['NEXT CONTACT'] = nextVal;
 
