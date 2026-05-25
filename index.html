@@ -158,8 +158,8 @@ input[type="file"] { display: none; }
     <div class="metric metric-melon"><div class="metric-label">Follow ups</div><div class="metric-value" id="m-followup">—</div><div class="metric-sub">Due today or overdue</div></div>
   </div>
 
-  <!-- Revenue placeholder row -->
-  <div style="margin-bottom:16px">
+  <!-- Revenue and confirmed events side by side -->
+  <div class="grid-2">
     <div class="card" style="border:1.5px dashed var(--gray);background:#FAFAF5">
       <div class="card-header">
         <div class="card-title" style="color:var(--gray-dark)">💰 Weekly revenue</div>
@@ -170,14 +170,13 @@ input[type="file"] { display: none; }
         <span style="font-size:11px">Configure in Make → Phase 3</span>
       </div>
     </div>
-  </div>
-
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">🎉 This week — Confirmed events</div>
-      <span style="font-size:11px;color:var(--gray-dark)">Payment received or complete · In progress</span>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🎉 This week — Confirmed events</div>
+        <span style="font-size:11px;color:var(--gray-dark)">Payment received or complete · In progress</span>
+      </div>
+      <div id="upcoming-list"><div class="loading-bar"><div class="spinner"></div> Loading...</div></div>
     </div>
-    <div id="upcoming-list"><div class="loading-bar"><div class="spinner"></div> Loading...</div></div>
   </div>
 </div>
 
@@ -720,18 +719,23 @@ async function saveInquiry() {
   const notesVal = document.getElementById('f-notes').value.trim();
   if (notesVal) fields['NOTES'] = notesVal;
 
-  // Handle dates - send as ISO format YYYY-MM-DD
+  // Dates must be YYYY-MM-DD for Airtable date fields
   const dateVal = document.getElementById('f-date').value;
   if (dateVal) fields['EVENT DATE'] = dateVal;
   
   const nextVal = document.getElementById('f-next').value;
   if (nextVal) fields['NEXT CONTACT'] = nextVal;
 
+  // Only send fields that Airtable can accept - skip NUMBER if it causes issues
+  const safeFields = {};
+  const allowedFields = ['NAME', 'COMPANY', 'EMAIL', 'TYPE OF EVENT', 'STATUS', 'LAST STAGE', 'NOTES', 'EVENT DATE', 'NEXT CONTACT'];
+  allowedFields.forEach(f => { if (fields[f] !== undefined) safeFields[f] = fields[f]; });
+
   try {
     if (editingAirtableId) {
-      await fetchAirtable('/' + editingAirtableId, { method: 'PATCH', body: JSON.stringify({ fields }) });
+      await fetchAirtable('/' + editingAirtableId, { method: 'PATCH', body: JSON.stringify({ fields: safeFields }) });
     } else {
-      await fetchAirtable('', { method: 'POST', body: JSON.stringify({ fields }) });
+      await fetchAirtable('', { method: 'POST', body: JSON.stringify({ fields: safeFields }) });
     }
     closeModal();
     await syncFromAirtable();
