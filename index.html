@@ -741,7 +741,7 @@ async function saveInquiry() {
 
   // Only send fields that Airtable can accept - skip NUMBER if it causes issues
   const safeFields = {};
-  const allowedFields = ['NAME', 'COMPANY', 'EMAIL', 'TYPE OF EVENT', 'STATUS', 'LAST STAGE', 'NOTES', 'EVENT DATE', 'NEXT CONTACT'];
+  const allowedFields = ['NAME', 'COMPANY', 'EMAIL', 'NUMBER', 'TYPE OF EVENT', 'STATUS', 'LAST STAGE', 'NOTES', 'EVENT DATE', 'NEXT CONTACT'];
   allowedFields.forEach(f => { if (fields[f] !== undefined) safeFields[f] = fields[f]; });
 
   try {
