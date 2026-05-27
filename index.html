@@ -116,8 +116,7 @@ textarea.form-input { min-height: 80px; resize: vertical; }
 .ai-ideas { background: #FAFFF0; border: 1.5px solid var(--lime); border-radius: var(--radius); padding: 14px; margin-top: 14px; }
 .idea-card { background: var(--white); border: 1px solid var(--gray); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 10px; cursor: pointer; transition: all 0.12s; }
 .idea-card:hover { border-color: var(--lime); background: #FAFFF0; }
-.idea-card.selected { border-color: var(--lime); background: #FAFFF0; }
-.idea-title { font-size: 12px; font-weight: 600; color: var(--black); margin-bottom: 4px; }
+.idea-title { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
 .idea-text { font-size: 11px; color: var(--gray-dark); line-height: 1.4; }
 input[type="file"] { display: none; }
 </style>
@@ -260,21 +259,66 @@ input[type="file"] { display: none; }
   </div>
 </div>
 
+
 <!-- CONTENT -->
 <div id="page-content" class="page">
-  <div class="page-header"><div><div class="page-title">Content planner</div><div class="page-sub">Plan your Instagram content</div></div></div>
-  <div class="card">
-    <div class="card-header"><div class="card-title">This week</div></div>
-    <div class="week-grid" id="week-grid"></div>
+  <div class="page-header">
+    <div><div class="page-title">Social Content</div><div class="page-sub">Create & schedule posts for Instagram, TikTok & more</div></div>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="openContentModal()">+ New Post</button>
+      <button class="btn" onclick="syncSocialContent()">⟳ Sync</button>
+    </div>
   </div>
   <div class="card">
-    <div class="card-header"><div class="card-title">Add post idea</div></div>
-    <div class="form-row" style="margin-bottom:12px">
-      <div class="form-group" style="margin:0"><label class="form-label">Day</label><select class="form-input" id="post-day"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select></div>
-      <div class="form-group" style="margin:0"><label class="form-label">Type</label><select class="form-input" id="post-type"><option>Reel</option><option>Carousel</option><option>Story</option><option>Static post</option></select></div>
+    <div class="card-header"><div class="card-title">Weekly Calendar</div></div>
+    <div class="week-grid" id="content-calendar" style="margin-top: 12px;"></div>
+  </div>
+  <div class="table-wrap">
+    <div class="table-toolbar">
+      <input type="text" class="search-input" id="content-search" placeholder="Search posts..." onkeyup="filterContentTable()">
+      <select class="filter-select" id="content-platform-filter" onchange="filterContentTable()">
+        <option value="">All Platforms</option>
+        <option value="Instagram">Instagram</option>
+        <option value="TikTok">TikTok</option>
+        <option value="YouTube Shorts">YouTube Shorts</option>
+        <option value="LinkedIn">LinkedIn</option>
+        <option value="Facebook">Facebook</option>
+      </select>
+      <select class="filter-select" id="content-status-filter" onchange="filterContentTable()">
+        <option value="">All Status</option>
+        <option value="Draft">Draft</option>
+        <option value="Approved">Approved</option>
+        <option value="Scheduled">Scheduled</option>
+        <option value="Published">Published</option>
+      </select>
     </div>
-    <div class="form-group"><label class="form-label">Caption / idea</label><textarea class="form-input" id="post-caption" placeholder="Write your post idea..."></textarea></div>
-    <button class="btn btn-primary" onclick="addPost()">+ Add to planner</button>
+    <table id="content-table">
+      <thead><tr><th>Date</th><th>Platform</th><th>Caption</th><th>Status</th><th>Best Time</th><th>Action</th></tr></thead>
+      <tbody id="content-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- CONTENT MODAL -->
+<div id="content-modal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Create Social Post</div><button class="close-btn" onclick="closeContentModal()">✕</button></div>
+    <div class="form-group"><label class="form-label">Date</label><input type="date" id="c-date" class="form-input"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Platform</label><select id="c-platform" class="form-input"><option value="">Select platform</option><option value="Instagram">Instagram</option><option value="TikTok">TikTok</option><option value="YouTube Shorts">YouTube Shorts</option><option value="LinkedIn">LinkedIn</option><option value="Facebook">Facebook</option></select></div>
+      <div class="form-group"><label class="form-label">Status</label><select id="c-status" class="form-input"><option value="Draft">Draft</option><option value="Approved">Approved</option><option value="Scheduled">Scheduled</option><option value="Published">Published</option></select></div>
+    </div>
+    <div class="form-group"><label class="form-label">Your Initial Idea</label><textarea id="c-idea" class="form-input" placeholder="What's your content idea?"></textarea></div>
+    <button class="btn btn-lime" onclick="getClaudeIdeas()" style="width: 100%; margin-bottom: 12px;">✨ Get AI Ideas & Trends</button>
+    <div id="ai-ideas-container" class="ai-ideas" style="display:none;"><div style="font-size: 11px; font-weight: 700; color: #555; text-transform: uppercase; margin-bottom: 10px;">Claude AI Suggestions:</div><div id="ideas-list"></div></div>
+    <div class="form-group"><label class="form-label">Caption</label><textarea id="c-caption" class="form-input" placeholder="Your post caption..."></textarea><div style="display: flex; gap: 8px; margin-top: 6px;"><button class="btn btn-sm" onclick="copyToClipboard('c-caption')">📋 Copy</button></div></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Hashtags</label><input type="text" id="c-hashtags" class="form-input" placeholder="#mrpapacatering"></div>
+      <div class="form-group"><label class="form-label">Best Time</label><input type="text" id="c-besttime" class="form-input" placeholder="7:00 PM Tuesday"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Image URL</label><input type="text" id="c-imageurl" class="form-input" placeholder="https://..."></div>
+    <div class="form-group"><label class="form-label">Notes</label><textarea id="c-notes" class="form-input" placeholder="Internal notes..."></textarea></div>
+    <div style="display: flex; gap: 8px; margin-top: 20px;"><button class="btn" onclick="closeContentModal()">Cancel</button><button class="btn btn-primary" id="save-content-btn" onclick="saveContent()" style="flex: 1;">✓ Save</button></div>
   </div>
 </div>
 
@@ -297,37 +341,20 @@ input[type="file"] { display: none; }
   </div>
 </div>
 
+
 <!-- SETTINGS -->
 <div id="page-settings" class="page">
-  <div class="page-header"><div><div class="page-title">Settings</div><div class="page-sub">Airtable & Buffer connection, business details</div></div></div>
+  <div class="page-header"><div><div class="page-title">Settings</div><div class="page-sub">Airtable & Buffer connection</div></div></div>
   <div class="card">
-    <div class="card-title" style="margin-bottom:16px">Airtable connection (Opción A)</div>
+    <div class="card-title" style="margin-bottom:16px">Airtable (Opción A)</div>
     <div class="form-group"><label class="form-label">Personal Access Token</label><input class="form-input" id="s-token" type="password" placeholder="patXXXXXXXXXXXXXX"></div>
     <div class="form-group"><label class="form-label">Base ID</label><input class="form-input" id="s-baseid" placeholder="appXXXXXXXXXXXXXX"></div>
     <div class="form-row">
-      <div class="form-group"><label class="form-label">Inquiries Table Name</label><input class="form-input" id="s-table-inquiries" value="Imported table"></div>
-      <div class="form-group"><label class="form-label">Social Content Table Name</label><input class="form-input" id="s-table-social" value="Social Content"></div>
+      <div class="form-group"><label class="form-label">Inquiries Table</label><input class="form-input" id="s-table-inquiries" value="Imported table"></div>
+      <div class="form-group"><label class="form-label">Social Content Table</label><input class="form-input" id="s-table-social" value="Social Content"></div>
     </div>
-    <div class="form-group"><label class="form-label">Buffer API Key</label><input class="form-input" id="s-buffer-key" type="password" placeholder="(stored in browser only)"></div>
-    <button class="btn btn-lime" onclick="saveAndTest()" style="margin-bottom:12px">✓ Save & test connection</button>
-    <div id="test-result"></div>
-  </div>
-  <div class="card">
-    <div class="card-title" style="margin-bottom:16px">Business info</div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Business name</label><input class="form-input" value="Mr Papa Catering"></div>
-      <div class="form-group"><label class="form-label">Your name</label><input class="form-input" value="Carla"></div>
-    </div>
-  </div>
-</div>
-<div id="page-settings" class="page">
-  <div class="page-header"><div><div class="page-title">Settings</div><div class="page-sub">Airtable connection & business details</div></div></div>
-  <div class="card">
-    <div class="card-title" style="margin-bottom:16px">Airtable connection</div>
-    <div class="form-group"><label class="form-label">Personal Access Token</label><input class="form-input" id="s-token" type="password" placeholder="patXXXXXXXXXXXXXX"></div>
-    <div class="form-group"><label class="form-label">Base ID</label><input class="form-input" id="s-baseid" placeholder="appXXXXXXXXXXXXXX"></div>
-    <div class="form-group"><label class="form-label">Table name</label><input class="form-input" id="s-table" value="Imported table"></div>
-    <button class="btn btn-lime" onclick="saveAndTest()" style="margin-bottom:12px">✓ Save & test connection</button>
+    <div class="form-group"><label class="form-label">Buffer API Key</label><input class="form-input" id="s-buffer-key" type="password" placeholder="(secure)"></div>
+    <button class="btn btn-lime" onclick="saveAndTest()" style="margin-bottom:12px">✓ Save & test</button>
     <div id="test-result"></div>
   </div>
   <div class="card">
@@ -817,77 +844,65 @@ function loadSettings() {
   document.getElementById('s-table').value = cfg.table;
 }
 
-// ===== CONTENT & SOCIAL MEDIA FUNCTIONS =====
+// ===== CONTENT FUNCTIONS =====
 let socialContent = [], allSocialContent = [];
 let editingContentId = null;
-
 async function syncSocialContent() {
   try {
     const cfg = getConfig();
-    const res = await fetchAirtable('?pageSize=100&tableName=Social Content', { method: 'GET' });
-    // Fallback: try direct Airtable API call if fetchAirtable doesn't support tableName param
-    const baseUrl = `https://api.airtable.com/v0/${cfg.baseId}/${encodeURIComponent(cfg.tableSocial || 'Social Content')}`;
-    const res2 = await fetch(baseUrl + '?pageSize=100', { headers: { 'Authorization': 'Bearer ' + cfg.token } });
-    if (res2.ok) {
-      const data = await res2.json();
-      socialContent = data.records.map(r => ({ id: r.id, ...r.fields }));
+    const url = `https://api.airtable.com/v0/${cfg.baseId}/${encodeURIComponent(cfg.tableSocial || 'Social Content')}?pageSize=100`;
+    const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + cfg.token } });
+    if (res.ok) {
+      const data = await res.json();
+      socialContent = (data.records || []).map(r => ({ id: r.id, ...r.fields }));
       allSocialContent = [...socialContent];
       renderContentTable();
       renderContentCalendar();
     }
-  } catch(e) {
-    console.error('Error syncing Social Content:', e);
-  }
+  } catch(e) { console.error(e); }
 }
-
 function renderContentTable() {
   const tbody = document.getElementById('content-tbody');
-  tbody.innerHTML = socialContent.map(p => `
-    <tr onclick="editContent('${p.id}')">
-      <td>${p.DATE || '-'}</td>
-      <td>${p.PLATFORM || '-'}</td>
-      <td>${(p.CAPTION || '').substring(0, 30)}...</td>
-      <td><span class="badge b-${(p.STATUS || 'draft').toLowerCase().replace(' ', '-')}">${p.STATUS || 'Draft'}</span></td>
-      <td>${p.BEST_TIME || '-'}</td>
-      <td><a href="#" onclick="event.stopPropagation(); editContent('${p.id}')">Edit</a></td>
-    </tr>
-  `).join('') || '<tr><td colspan="6" class="empty"><div class="empty-title">No posts yet</div></td></tr>';
+  tbody.innerHTML = socialContent.map(p => `<tr onclick="editContent('${p.id}')"><td>${p.DATE||'-'}</td><td>${p.PLATFORM||'-'}</td><td>${(p.CAPTION||'').substring(0,30)}...</td><td><span class="badge b-${(p.STATUS||'Draft').toLowerCase().replace(' ','-')}">${p.STATUS||'Draft'}</span></td><td>${p.BEST_TIME||'-'}</td><td><a href="#" onclick="event.stopPropagation();editContent('${p.id}')">Edit</a></td></tr>`).join('') || '<tr><td colspan="6"><div class="empty"><div class="empty-title">No posts yet</div></div></td></tr>';
 }
-
 function renderContentCalendar() {
   const cal = document.getElementById('content-calendar');
   let html = '';
-  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
   days.forEach(d => html += `<div class="day-head">${d}</div>`);
-  
   const today = new Date();
   for (let i = 0; i < 7; i++) {
     const d = new Date(today);
     d.setDate(d.getDate() + i - today.getDay() + 1);
     const dateStr = d.toISOString().split('T')[0];
     const posts = socialContent.filter(p => p.DATE === dateStr);
-    const hasPost = posts.length > 0;
-    html += `<div class="day-cell ${hasPost ? 'has-post' : ''}"><div style="font-size: 12px; font-weight: 600; margin-bottom: 4px;">${d.getDate()}</div>${posts.map(p => `<div class="post-tag">${p.PLATFORM}</div>`).join('')}</div>`;
+    html += `<div class="day-cell ${posts.length?'has-post':''}" onclick="filterByDate('${dateStr}')"><div style="font-size:12px;font-weight:600;margin-bottom:4px;">${d.getDate()}</div>${posts.map(p => `<div class="post-tag">${p.PLATFORM}</div>`).join('')}</div>`;
   }
   cal.innerHTML = html;
 }
-
+function filterByDate(dateStr) {
+  document.getElementById('content-search').value = '';
+  document.getElementById('content-platform-filter').value = '';
+  document.getElementById('content-status-filter').value = '';
+  socialContent = allSocialContent.filter(p => p.DATE === dateStr);
+  renderContentTable();
+}
 function filterContentTable() {
   const search = document.getElementById('content-search').value.toLowerCase();
   const platform = document.getElementById('content-platform-filter').value;
   const status = document.getElementById('content-status-filter').value;
-  
   socialContent = allSocialContent.filter(p => {
-    const matchSearch = !search || (p.CAPTION || '').toLowerCase().includes(search) || (p.HASHTAGS || '').toLowerCase().includes(search);
+    const matchSearch = !search || (p.CAPTION||'').toLowerCase().includes(search) || (p.HASHTAGS||'').toLowerCase().includes(search);
     const matchPlatform = !platform || p.PLATFORM === platform;
     const matchStatus = !status || p.STATUS === status;
     return matchSearch && matchPlatform && matchStatus;
   });
   renderContentTable();
 }
-
 function openContentModal() {
-  document.getElementById('c-date').value = new Date().toISOString().split('T')[0];
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  document.getElementById('c-date').value = tomorrow.toISOString().split('T')[0];
   document.getElementById('c-platform').value = '';
   document.getElementById('c-status').value = 'Draft';
   document.getElementById('c-idea').value = '';
@@ -896,21 +911,16 @@ function openContentModal() {
   document.getElementById('c-besttime').value = '';
   document.getElementById('c-imageurl').value = '';
   document.getElementById('c-notes').value = '';
-  document.getElementById('c-bufferurl').value = '';
   document.getElementById('ai-ideas-container').style.display = 'none';
   document.getElementById('content-modal').classList.add('open');
   editingContentId = null;
 }
-
 function closeContentModal() {
   document.getElementById('content-modal').classList.remove('open');
-  editingContentId = null;
 }
-
 function editContent(id) {
   const post = socialContent.find(p => p.id === id);
   if (!post) return;
-  
   document.getElementById('c-date').value = post.DATE || '';
   document.getElementById('c-platform').value = post.PLATFORM || '';
   document.getElementById('c-status').value = post.STATUS || 'Draft';
@@ -920,88 +930,46 @@ function editContent(id) {
   document.getElementById('c-besttime').value = post.BEST_TIME || '';
   document.getElementById('c-imageurl').value = post.IMAGE_URL || '';
   document.getElementById('c-notes').value = post.NOTES || '';
-  document.getElementById('c-bufferurl').value = post.BUFFER_URL || '';
   document.getElementById('ai-ideas-container').style.display = 'none';
   document.getElementById('content-modal').classList.add('open');
   editingContentId = id;
 }
-
 async function getClaudeIdeas() {
   const idea = document.getElementById('c-idea').value.trim();
-  if (!idea) { alert('Please enter an idea first'); return; }
-  
-  const container = document.getElementById('ai-ideas-container');
+  if (!idea) { alert('Enter an idea first'); return; }
   const list = document.getElementById('ideas-list');
-  list.innerHTML = '<div style="padding: 12px; text-align: center; color: var(--gray-dark);">⟳ Generating ideas with Claude...</div>';
-  container.style.display = 'block';
-  
+  list.innerHTML = '<div style="padding:12px;text-align:center;color:var(--gray-dark);">⟳ Generating...</div>';
+  document.getElementById('ai-ideas-container').style.display = 'block';
   try {
-    const prompt = `You are a social media expert for Mr Papa Catering in Canberra, Australia.
-Based on the idea: "${idea}"
-
-Consider:
-- Mr Papa brand: warm, professional, casual Australian English style
-- Brand colors: Black, Lime Green, Pink, Blue, Melon
-- Services: Food Truck Fiesta, Canapé Pop-Up Fiesta, Fiesta Pack Platters
-- Current trends in restaurant/catering social media
-- Hashtags relevant to Canberra catering
-
-Generate 3-5 SHORT, punchy social media ideas. For each idea:
-1. A catchy title (max 8 words)
-2. Caption suggestion (max 100 chars)
-3. Best posting time (e.g., "Tuesday 7 PM")
-4. Key hashtags (5-7)
-
-Format as JSON array: [{"title":"...", "caption":"...", "time":"...", "tags":"..."}]`;
-    
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         model: "claude-sonnet-4-20250514",
         max_tokens: 1000,
-        messages: [{ role: "user", content: prompt }]
+        messages: [{ role: "user", content: `You are a social media expert for Mr Papa Catering in Canberra. Based on: "${idea}" - Generate 3 SHORT ideas with title, caption (max 100 chars), best time, and 5-7 hashtags. Return as JSON array: [{"title":"...","caption":"...","time":"...","tags":"..."}]` }]
       })
     });
-    
     if (!response.ok) throw new Error('API error');
     const data = await response.json();
     const text = data.content[0].text;
-    
-    try {
-      const jsonMatch = text.match(/\[[\s\S]*\]/);
-      const ideas = JSON.parse(jsonMatch ? jsonMatch[0] : text);
-      
-      list.innerHTML = ideas.map((idea, i) => `
-        <div class="idea-card" onclick="selectIdea(${i}, '${idea.caption.replace(/'/g, "\\'")}', '${idea.time.replace(/'/g, "\\'")}', '${idea.tags.replace(/'/g, "\\'")}')">
-          <div class="idea-title">${idea.title}</div>
-          <div class="idea-text"><strong>Caption:</strong> ${idea.caption}</div>
-          <div class="idea-text"><strong>Best time:</strong> ${idea.time}</div>
-          <div class="idea-text"><strong>Tags:</strong> ${idea.tags}</div>
-        </div>
-      `).join('');
-    } catch {
-      list.innerHTML = `<div style="color: var(--gray-dark); padding: 12px;">Ideas generated: ${text}</div>`;
-    }
+    const jsonMatch = text.match(/\[[\s\S]*\]/);
+    const ideas = JSON.parse(jsonMatch ? jsonMatch[0] : text);
+    list.innerHTML = ideas.map((idea, i) => `<div class="idea-card" onclick="selectIdea('${idea.caption.replace(/'/g,"\\'")}',' ${idea.time.replace(/'/g,"\\'")}',' ${idea.tags.replace(/'/g,"\\'")}')" style="cursor:pointer;padding:12px;border:1px solid var(--gray);border-radius:8px;margin-bottom:8px;"><div class="idea-title">${idea.title}</div><div class="idea-text"><strong>Caption:</strong> ${idea.caption}</div><div class="idea-text"><strong>Time:</strong> ${idea.time}</div></div>`).join('');
   } catch(e) {
     console.error(e);
-    list.innerHTML = '<div style="color: #B91C1C; padding: 12px;">Error generating ideas</div>';
+    list.innerHTML = '<div style="color:#B91C1C;padding:12px;">Error generating ideas</div>';
   }
 }
-
-function selectIdea(index, caption, time, tags) {
+function selectIdea(caption, time, tags) {
   document.getElementById('c-caption').value = caption;
   document.getElementById('c-besttime').value = time;
   document.getElementById('c-hashtags').value = tags;
-  document.querySelectorAll('.idea-card').forEach((card, i) => {
-    card.classList.toggle('selected', i === index);
-  });
 }
-
 async function saveContent() {
   const btn = document.getElementById('save-content-btn');
-  btn.textContent = '⟳ Saving...'; btn.disabled = true;
-  
+  btn.textContent = '⟳ Saving...';
+  btn.disabled = true;
   const fields = {
     DATE: document.getElementById('c-date').value,
     PLATFORM: document.getElementById('c-platform').value,
@@ -1010,59 +978,59 @@ async function saveContent() {
     IMAGE_URL: document.getElementById('c-imageurl').value,
     HASHTAGS: document.getElementById('c-hashtags').value,
     STATUS: document.getElementById('c-status').value,
-    BUFFER_URL: document.getElementById('c-bufferurl').value,
     BEST_TIME: document.getElementById('c-besttime').value,
     NOTES: document.getElementById('c-notes').value
   };
-  
   try {
     const cfg = getConfig();
-    const baseUrl = `https://api.airtable.com/v0/${cfg.baseId}/${encodeURIComponent(cfg.tableSocial || 'Social Content')}`;
-    
-    if (editingContentId) {
-      await fetch(baseUrl + '/' + editingContentId, { 
-        method: 'PATCH',
-        headers: { 'Authorization': 'Bearer ' + cfg.token, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fields })
-      });
-    } else {
-      await fetch(baseUrl, { 
-        method: 'POST',
-        headers: { 'Authorization': 'Bearer ' + cfg.token, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fields })
-      });
-    }
+    const url = `https://api.airtable.com/v0/${cfg.baseId}/${encodeURIComponent(cfg.tableSocial || 'Social Content')}`;
+    const method = editingContentId ? 'PATCH' : 'POST';
+    const path = editingContentId ? '/' + editingContentId : '';
+    await fetch(url + path, {
+      method: method,
+      headers: { 'Authorization': 'Bearer ' + cfg.token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fields })
+    });
     closeContentModal();
     await syncSocialContent();
   } catch(e) {
-    alert('Error saving to Airtable');
+    alert('Error saving');
     console.error(e);
   }
-  btn.textContent = '✓ Save to Airtable'; btn.disabled = false;
+  btn.textContent = '✓ Save';
+  btn.disabled = false;
 }
-
-function scheduleToBuffer() {
-  const caption = document.getElementById('c-caption').value;
-  const cfg = getConfig();
-  if (!cfg.bufferKey) { alert('Buffer API key not configured in Settings'); return; }
-  alert('Buffer integration coming soon. For now, copy the caption and schedule manually in Buffer.');
-}
-
-function copyToClipboard(elementId) {
-  const text = document.getElementById(elementId).value;
+function copyToClipboard(id) {
+  const text = document.getElementById(id).value;
   if (!text) return;
-  navigator.clipboard.writeText(text).then(() => {
-    alert('Copied to clipboard!');
-  }).catch(() => alert('Error copying'));
+  navigator.clipboard.writeText(text).then(() => alert('Copied!')).catch(() => alert('Error'));
 }
-
-// ===== UPDATE SETTINGS FOR TABLES & BUFFER =====
+function saveAndTest() {
+  const token = document.getElementById('s-token').value.trim();
+  const baseId = document.getElementById('s-baseid').value.trim();
+  const tableInquiries = document.getElementById('s-table-inquiries').value.trim();
+  const tableSocial = document.getElementById('s-table-social').value.trim();
+  const bufferKey = document.getElementById('s-buffer-key').value.trim();
+  if (!token || !baseId) { alert('Enter token and base ID'); return; }
+  localStorage.setItem('mp_config', JSON.stringify({ token, baseId, table: tableInquiries, tableInquiries, tableSocial, bufferKey }));
+  const el = document.getElementById('test-result');
+  el.innerHTML = '<span style="color:var(--gray-dark)">Testing...</span>';
+  try {
+    fetch(`https://api.airtable.com/v0/${baseId}/${encodeURIComponent(tableInquiries)}?pageSize=1`, { headers: { 'Authorization': 'Bearer ' + token } })
+      .then(res => {
+        if (res.ok) {
+          el.innerHTML = '<span style="color:#1B7340;font-weight:600">✓ Connection OK!</span>';
+          syncFromAirtable();
+          syncSocialContent();
+        } else {
+          el.innerHTML = '<span style="color:#B91C1C">✕ Failed. Check credentials.</span>';
+        }
+      });
+  } catch(e) { el.innerHTML = '<span style="color:#B91C1C">✕ Error</span>'; }
+}
 function getConfig() {
-  const cfg = JSON.parse(localStorage.getItem('mp_config')) || 
-    { token: 'TU_TOKEN_AQUI', baseId: 'TU_BASE_ID_AQUI', table: 'Imported table', tableInquiries: 'Imported table', tableSocial: 'Social Content', bufferKey: '' };
-  return cfg;
+  return JSON.parse(localStorage.getItem('mp_config')) || { token: 'TU_TOKEN_AQUI', baseId: 'TU_BASE_ID_AQUI', table: 'Imported table', tableInquiries: 'Imported table', tableSocial: 'Social Content', bufferKey: '' };
 }
-
 function loadSettings() {
   const cfg = getConfig();
   document.getElementById('s-token').value = cfg.token !== 'TU_TOKEN_AQUI' ? cfg.token : '';
@@ -1071,37 +1039,6 @@ function loadSettings() {
   document.getElementById('s-table-social').value = cfg.tableSocial || 'Social Content';
   document.getElementById('s-buffer-key').value = cfg.bufferKey || '';
 }
-
-function saveAndTest() {
-  const token = document.getElementById('s-token').value.trim();
-  const baseId = document.getElementById('s-baseid').value.trim();
-  const tableInquiries = document.getElementById('s-table-inquiries').value.trim();
-  const tableSocial = document.getElementById('s-table-social').value.trim();
-  const bufferKey = document.getElementById('s-buffer-key').value.trim();
-  
-  if (!token || !baseId) { alert('Please enter token and base ID'); return; }
-  
-  localStorage.setItem('mp_config', JSON.stringify({ token, baseId, table: tableInquiries, tableInquiries, tableSocial, bufferKey }));
-  
-  const el = document.getElementById('test-result');
-  el.innerHTML = '<span style="color:var(--gray-dark);font-size:13px">Testing connection...</span>';
-  
-  try {
-    fetch('https://api.airtable.com/v0/' + baseId + '/' + encodeURIComponent(tableInquiries) + '?pageSize=1', 
-      { headers: { 'Authorization': 'Bearer ' + token } })
-      .then(res => {
-        if (res.ok) {
-          el.innerHTML = '<span style="color:#1B7340;font-size:13px;font-weight:600">✓ Connection successful!</span>';
-          syncFromAirtable();
-          syncSocialContent();
-        } else {
-          el.innerHTML = '<span style="color:#B91C1C;font-size:13px">✕ Failed. Check token & base ID.</span>';
-        }
-      });
-  } catch(e) { el.innerHTML = '<span style="color:#B91C1C;font-size:13px">✕ Network error.</span>'; }
-}
-
-syncFromAirtable();
 syncSocialContent();
 renderWeek();
 </script>
