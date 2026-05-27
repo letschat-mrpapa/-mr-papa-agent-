@@ -941,24 +941,18 @@ async function getClaudeIdeas() {
   list.innerHTML = '<div style="padding:12px;text-align:center;color:var(--gray-dark);">⟳ Generating...</div>';
   document.getElementById('ai-ideas-container').style.display = 'block';
   try {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 1000,
-        messages: [{ role: "user", content: `You are a social media expert for Mr Papa Catering in Canberra. Based on: "${idea}" - Generate 3 SHORT ideas with title, caption (max 100 chars), best time, and 5-7 hashtags. Return as JSON array: [{"title":"...","caption":"...","time":"...","tags":"..."}]` }]
-      })
+    const response = await fetch('https://mr-papa-agent.vercel.app/api/claude-ideas', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idea })
     });
-    if (!response.ok) throw new Error('API error');
     const data = await response.json();
-    const text = data.content[0].text;
-    const jsonMatch = text.match(/\[[\s\S]*\]/);
-    const ideas = JSON.parse(jsonMatch ? jsonMatch[0] : text);
+    if (data.error) throw new Error(data.error);
+    const ideas = data.ideas;
     list.innerHTML = ideas.map((idea, i) => `<div class="idea-card" onclick="selectIdea('${idea.caption.replace(/'/g,"\\'")}',' ${idea.time.replace(/'/g,"\\'")}',' ${idea.tags.replace(/'/g,"\\'")}')" style="cursor:pointer;padding:12px;border:1px solid var(--gray);border-radius:8px;margin-bottom:8px;"><div class="idea-title">${idea.title}</div><div class="idea-text"><strong>Caption:</strong> ${idea.caption}</div><div class="idea-text"><strong>Time:</strong> ${idea.time}</div></div>`).join('');
   } catch(e) {
     console.error(e);
-    list.innerHTML = '<div style="color:#B91C1C;padding:12px;">Error generating ideas</div>';
+    list.innerHTML = '<div style="color:#B91C1C;padding:12px;">Error: ' + e.message + '</div>';
   }
 }
 function selectIdea(caption, time, tags) {
