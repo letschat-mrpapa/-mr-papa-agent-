@@ -850,16 +850,27 @@ let editingContentId = null;
 async function syncSocialContent() {
   try {
     const cfg = getConfig();
+    if (cfg.token === 'TU_TOKEN_AQUI' || cfg.baseId === 'TU_BASE_ID_AQUI') {
+      console.log('Settings not configured');
+      return;
+    }
     const url = `https://api.airtable.com/v0/${cfg.baseId}/${encodeURIComponent(cfg.tableSocial || 'Social Content')}?pageSize=100`;
-    const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + cfg.token } });
+    const res = await fetch(url, { 
+      headers: { 'Authorization': 'Bearer ' + cfg.token },
+      method: 'GET'
+    });
     if (res.ok) {
       const data = await res.json();
       socialContent = (data.records || []).map(r => ({ id: r.id, ...r.fields }));
       allSocialContent = [...socialContent];
       renderContentTable();
       renderContentCalendar();
+    } else {
+      console.error('Airtable error:', res.status, res.statusText);
     }
-  } catch(e) { console.error(e); }
+  } catch(e) { 
+    console.error('Sync error:', e); 
+  }
 }
 function renderContentTable() {
   const tbody = document.getElementById('content-tbody');
