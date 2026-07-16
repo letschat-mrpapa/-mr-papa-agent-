@@ -16,6 +16,7 @@ body { font-family: 'Space Grotesk', sans-serif; background: var(--gray-light); 
 .sidebar { width: 220px; min-width: 220px; background: var(--black); display: flex; flex-direction: column; overflow-y: auto; }
 .logo-area { padding: 20px 18px; border-bottom: 1px solid #222; display: flex; align-items: center; gap: 10px; }
 .logo-img { width: 40px; height: 40px; border-radius: 8px; background: var(--lime); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.logo-img img { width: 100%; height: 100%; object-fit: cover; }
 .logo-text { font-size: 15px; font-weight: 700; color: var(--lime); letter-spacing: -0.02em; }
 .logo-sub { font-size: 10px; color: #666; margin-top: 1px; }
 .nav { padding: 10px 0; flex: 1; }
@@ -34,8 +35,11 @@ body { font-family: 'Space Grotesk', sans-serif; background: var(--gray-light); 
 .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; cursor: pointer; border: 1.5px solid #ddd; background: var(--white); color: var(--text); font-family: 'Space Grotesk', sans-serif; transition: all 0.12s; }
 .btn:hover { background: #f0f0e8; }
 .btn-primary { background: var(--black); color: var(--lime); border-color: var(--black); }
+.btn-primary:hover { background: #222; }
 .btn-lime { background: var(--lime); color: var(--black); border-color: var(--lime); }
 .btn-lime:hover { background: #c5ea6a; }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
 .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
 .metric { background: var(--white); border-radius: var(--radius); padding: 16px 18px; border: 1.5px solid var(--gray); position: relative; overflow: hidden; }
 .metric::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
@@ -85,72 +89,148 @@ textarea.form-input { min-height: 80px; resize: vertical; }
 .event-name { font-size: 13px; font-weight: 600; }
 .event-detail { font-size: 11px; color: var(--gray-dark); margin-top: 2px; }
 .review-box { background: var(--gray-light); border: 1.5px solid var(--gray); border-radius: var(--radius-sm); padding: 12px; min-height: 80px; resize: vertical; width: 100%; font-family: 'Space Grotesk', sans-serif; font-size: 13px; color: var(--text); }
-.review-box { background: var(--gray-light); border: 1.5px solid var(--gray); border-radius: var(--radius-sm); padding: 12px; min-height: 80px; resize: vertical; width: 100%; font-family: 'Space Grotesk', sans-serif; font-size: 13px; color: var(--text); }
 .ai-draft { background: #FAFFF0; border: 1.5px solid var(--lime); border-radius: var(--radius); padding: 14px; margin-top: 14px; display: none; }
 .ai-draft-label { font-size: 10px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
 .week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
 .day-head { text-align: center; font-size: 10px; font-weight: 700; color: var(--gray-dark); text-transform: uppercase; letter-spacing: 0.06em; padding: 6px 0; }
 .day-cell { background: var(--gray-light); border: 1.5px solid var(--gray); border-radius: var(--radius-sm); min-height: 90px; padding: 8px; cursor: pointer; transition: all 0.12s; font-size: 11px; }
 .day-cell:hover { border-color: var(--black); }
-.empty { text-align: center; padding: 20px; color: var(--gray-dark); }
-.empty-title { font-size: 14px; font-weight: 600; }
+.day-cell.has-post { background: #FAFFF0; border-color: var(--lime); }
+.post-tag { font-size: 9px; font-weight: 700; color: #555; text-transform: uppercase; margin-bottom: 3px; }
+.post-preview { font-size: 10px; color: var(--gray-dark); line-height: 1.4; }
+.pagination { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; border-top: 1px solid var(--gray); font-size: 12px; color: var(--gray-dark); background: #FAFAF5; }
+.empty { text-align: center; padding: 48px 24px; color: var(--gray-dark); }
+.empty-title { font-size: 14px; font-weight: 600; color: var(--black); margin-bottom: 4px; }
+.progress-bar { height: 6px; background: var(--gray); border-radius: 3px; overflow: hidden; margin-bottom: 12px; }
+.loading-bar { display: flex; align-items: center; justify-content: center; padding: 40px; font-size: 13px; color: var(--gray-dark); gap: 8px; }
+.spinner { width: 20px; height: 20px; border: 2px solid var(--gray); border-top-color: var(--lime); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.sync-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+.sync-ok { background: #EDFAF0; color: #1B7340; }
+.sync-err { background: #FEF2F2; color: #B91C1C; }
+.sync-loading { background: #FFF9E6; color: #B45309; }
+input[type="file"] { display: none; }
 </style>
 </head>
 <body>
 
-<div class="sidebar">
+<nav class="sidebar">
+  <div class="logo-area">
     <div class="logo-img">
-      <img src="data:image/jpeg;base64,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" alt="Mr Papa">
+      <img src="data:image/jpeg;base64,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" alt="Mr Papa">
     </div>
-  <div class="nav">
-    <div class="nav-section">MAIN</div>
-    <div class="nav-item active" onclick="showPage('dashboard')"><span class="dot">◯</span>Dashboard</div>
-    <div class="nav-item" onclick="showPage('inquiries')"><span class="dot">◯</span>Inquiries</div>
-    <div class="nav-item" onclick="showPage('calendar')"><span class="dot">◯</span>Calendar</div>
-    <div class="nav-section">OTHER</div>
-    <div class="nav-item" onclick="showPage('reviews')"><span class="dot">◉</span>Reviews</div>
-    <div class="nav-section">SYSTEM</div>
-    <div class="nav-item" onclick="showPage('settings')"><span class="dot">◯</span>Settings</div>
+    <div>
+      <div class="logo-text">MR.PAPA</div>
+      <div class="logo-sub">Catering CRM</div>
+    </div>
   </div>
-  <div class="sidebar-footer">✓ Synced · 310 records</div>
-</div>
+  <div class="nav">
+    <div class="nav-section">Main</div>
+    <div class="nav-item active" onclick="showPage('dashboard',this)"><span class="dot">⌂</span><span>Dashboard</span></div>
+    <div class="nav-item" onclick="showPage('inquiries',this)"><span class="dot">✉</span><span>Inquiries</span></div>
+    <div class="nav-item" onclick="showPage('calendar',this)"><span class="dot">◷</span><span>Calendar</span></div>
+    <div class="nav-section">Marketing</div>
+    <div class="nav-item" onclick="showPage('content',this)"><span class="dot">◈</span><span>Content</span></div>
+    <div class="nav-item" onclick="showPage('reviews',this)"><span class="dot">★</span><span>Reviews</span></div>
+    <div class="nav-section">System</div>
+    <div class="nav-item" onclick="showPage('settings',this)"><span class="dot">⚙</span><span>Settings</span></div>
+  </div>
+  <div class="sidebar-footer">
+    <div id="sync-status" class="sync-badge sync-loading">⟳ Connecting...</div>
+  </div>
+</nav>
 
-<div class="main">
-<main>
+<main class="main">
 
 <!-- DASHBOARD -->
 <div id="page-dashboard" class="page active">
-  <div class="page-header"><div><div class="page-title">Dashboard</div><div class="page-sub">Welcome back, Mr Papa 🧡</div></div><div class="btn-group"><button class="btn btn-primary" onclick="syncFromAirtable()">⟳ Sync Airtable</button><button class="btn btn-lime" onclick="showModal('inquiry')">+ New inquiry</button></div></div>
-  <div class="metrics">
-    <div class="metric metric-lime"><div class="metric-label">In progress</div><div class="metric-value" id="metric-progress">-</div><div class="metric-sub">Active inquiries</div></div>
-    <div class="metric metric-blue"><div class="metric-label">Total</div><div class="metric-value" id="metric-total">-</div><div class="metric-sub">All inquiries</div></div>
-    <div class="metric metric-pink"><div class="metric-label">Finished</div><div class="metric-value" id="metric-finished">-</div><div class="metric-sub">Completed events</div></div>
-    <div class="metric metric-melon"><div class="metric-label">Follow ups</div><div class="metric-value" id="metric-followups">-</div><div class="metric-sub">Due today or overdue</div></div>
+  <div class="page-header">
+    <div><div class="page-title">Dashboard</div><div class="page-sub">Welcome back, Mr Papa 🧡</div></div>
+    <div class="btn-group">
+      <button class="btn" onclick="syncFromAirtable()">⟳ Sync Airtable</button>
+      <button class="btn btn-primary" onclick="showPage('inquiries', document.querySelectorAll('.nav-item')[1]); openModal()">+ New inquiry</button>
+    </div>
   </div>
+  <div class="metrics">
+    <div class="metric metric-lime"><div class="metric-label">In progress</div><div class="metric-value" id="m-active">—</div><div class="metric-sub">Active inquiries</div></div>
+    <div class="metric metric-blue"><div class="metric-label">Total</div><div class="metric-value" id="m-total">—</div><div class="metric-sub">All inquiries</div></div>
+    <div class="metric metric-pink"><div class="metric-label">Finished</div><div class="metric-value" id="m-finished">—</div><div class="metric-sub">Completed events</div></div>
+    <div class="metric metric-melon"><div class="metric-label">Follow ups</div><div class="metric-value" id="m-followup">—</div><div class="metric-sub">Due today or overdue</div></div>
+  </div>
+
+  <!-- Revenue and confirmed events side by side -->
   <div class="grid-2">
-    <div class="card">
-      <div class="card-header"><div class="card-title">Weekly revenue</div><div style="font-size:11px;color:var(--gray-dark)">Coming soon</div></div>
-      <p style="font-size:13px;color:var(--gray-dark)">This section will show your weekly revenue once connected to Xero and Square. Configure in Make → Phase 3</p>
+    <div class="card" style="border:1.5px dashed var(--gray);background:#FAFAF5">
+      <div class="card-header">
+        <div class="card-title" style="color:var(--gray-dark)">💰 Weekly revenue</div>
+        <span style="font-size:10px;font-weight:600;color:var(--gray-dark);background:var(--gray);padding:3px 8px;border-radius:20px">Coming soon</span>
+      </div>
+      <div style="font-size:13px;color:var(--gray-dark);line-height:1.7">
+        This section will show your weekly revenue once connected to <strong>Xero</strong> and <strong>Square</strong>.<br>
+        <span style="font-size:11px">Configure in Make → Phase 3</span>
+      </div>
     </div>
     <div class="card">
-      <div class="card-header"><div class="card-title">This week — Confirmed events</div><div style="font-size:11px;color:var(--gray-dark)">Payment received or complete · In progress</div></div>
-      <div id="dashboard-events"></div>
+      <div class="card-header">
+        <div class="card-title">🎉 This week — Confirmed events</div>
+        <span style="font-size:11px;color:var(--gray-dark)">Payment received or complete · In progress</span>
+      </div>
+      <div id="upcoming-list"><div class="loading-bar"><div class="spinner"></div> Loading...</div></div>
     </div>
   </div>
 </div>
 
 <!-- INQUIRIES -->
 <div id="page-inquiries" class="page">
-  <div class="page-header"><div><div class="page-title">Inquiries</div><div class="page-sub" id="inquiry-count-label">Loading...</div></div><div class="btn-group"><button class="btn" onclick="syncFromAirtable()">⟳ Sync</button><button class="btn btn-lime" onclick="showModal('inquiry')">+ New inquiry</button></div></div>
+  <div class="page-header">
+    <div><div class="page-title">Inquiries</div><div class="page-sub" id="inquiry-count-label">Loading...</div></div>
+    <div class="btn-group">
+      <button class="btn" onclick="syncFromAirtable()">⟳ Sync</button>
+      <button class="btn btn-primary" onclick="openModal()">+ New inquiry</button>
+    </div>
+  </div>
   <div class="table-wrap">
     <div class="table-toolbar">
-      <input type="text" class="search-input" id="search-input" placeholder="Search inquiries..." onkeyup="filterTable()">
-      <select class="filter-select" id="status-filter" onchange="filterTable()"><option value="">All statuses</option><option value="Progress">In progress</option><option value="Finished">Finished</option><option value="Dropped">Dropped</option></select>
+      <input type="text" class="search-input" placeholder="Search name, company, type..." id="search-input" oninput="filterTable()">
+      <select class="filter-select" id="filter-status" onchange="filterTable()">
+        <option value="">All statuses</option>
+        <option value="Progress">Progress</option>
+        <option value="Finished">Finished</option>
+        <option value="Dropped">Dropped</option>
+      </select>
+      <select class="filter-select" id="filter-type" onchange="filterTable()">
+        <option value="">All types</option>
+        <option value="Wedding">Wedding</option>
+        <option value="Corporate">Corporate</option>
+        <option value="Birthday">Birthday</option>
+        <option value="Private">Private</option>
+        <option value="Community">Community</option>
+        <option value="Market">Market</option>
+      </select>
+      <select class="filter-select" id="sort-field" onchange="filterTable()">
+        <option value="">Sort by...</option>
+        <option value="nextContact-asc">Next contact ↑ (soonest first)</option>
+        <option value="nextContact-desc">Next contact ↓ (latest first)</option>
+        <option value="date-asc">Event date ↑ (soonest first)</option>
+        <option value="date-desc">Event date ↓ (latest first)</option>
+        <option value="name-asc">Name A → Z</option>
+        <option value="name-desc">Name Z → A</option>
+        <option value="status-asc">Status A → Z</option>
+      </select>
     </div>
-    <table id="inquiry-table">
-      <thead><tr><th>Name</th><th>Company</th><th>Type</th><th>Date</th><th>Status</th><th>Follow up</th><th>Action</th></tr></thead>
-      <tbody id="table-body"></tbody>
-    </table>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>Name</th><th>Company</th><th>Event date</th><th>Type</th><th>Days till</th><th>Last stage</th><th>Status</th><th>Next contact</th><th>Notes</th></tr></thead>
+        <tbody id="inquiry-tbody"><tr><td colspan="9"><div class="loading-bar"><div class="spinner"></div> Loading from Airtable...</div></td></tr></tbody>
+      </table>
+    </div>
+    <div class="pagination">
+      <span id="pagination-info">Loading...</span>
+      <div class="btn-group">
+        <button class="btn btn-sm" onclick="prevPage()">← Prev</button>
+        <button class="btn btn-sm" onclick="nextPage()">Next →</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -158,12 +238,33 @@ textarea.form-input { min-height: 80px; resize: vertical; }
 <div id="page-calendar" class="page">
   <div class="page-header"><div><div class="page-title">Calendar</div><div class="page-sub">What's on your plate today and upcoming</div></div></div>
   <div class="card">
-    <div class="card-header"><div class="card-title">Follow ups due today</div></div>
-    <div id="followups-today"></div>
+    <div class="card-header"><div class="card-title">📋 Follow ups due today</div></div>
+    <div id="cal-today"><div class="loading-bar"><div class="spinner"></div> Loading...</div></div>
   </div>
   <div class="card">
-    <div class="card-header"><div class="card-title">This week — Confirmed events</div><div style="font-size:11px;color:var(--gray-dark)">Payment received or complete · In progress</div></div>
-    <div id="confirmed-events"></div>
+    <div class="card-header">
+      <div class="card-title">🎉 Upcoming confirmed events</div>
+      <span style="font-size:11px;color:var(--gray-dark)">Payment received or complete · In progress</span>
+    </div>
+    <div id="cal-upcoming"><div class="loading-bar"><div class="spinner"></div> Loading...</div></div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div id="page-content" class="page">
+  <div class="page-header"><div><div class="page-title">Content planner</div><div class="page-sub">Plan your Instagram content</div></div></div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">This week</div></div>
+    <div class="week-grid" id="week-grid"></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">Add post idea</div></div>
+    <div class="form-row" style="margin-bottom:12px">
+      <div class="form-group" style="margin:0"><label class="form-label">Day</label><select class="form-input" id="post-day"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select></div>
+      <div class="form-group" style="margin:0"><label class="form-label">Type</label><select class="form-input" id="post-type"><option>Reel</option><option>Carousel</option><option>Story</option><option>Static post</option></select></div>
+    </div>
+    <div class="form-group"><label class="form-label">Caption / idea</label><textarea class="form-input" id="post-caption" placeholder="Write your post idea..."></textarea></div>
+    <button class="btn btn-primary" onclick="addPost()">+ Add to planner</button>
   </div>
 </div>
 
@@ -188,13 +289,13 @@ textarea.form-input { min-height: 80px; resize: vertical; }
 
 <!-- SETTINGS -->
 <div id="page-settings" class="page">
-  <div class="page-header"><div><div class="page-title">Settings</div><div class="page-sub">Airtable connection</div></div></div>
+  <div class="page-header"><div><div class="page-title">Settings</div><div class="page-sub">Airtable connection & business details</div></div></div>
   <div class="card">
     <div class="card-title" style="margin-bottom:16px">Airtable connection</div>
     <div class="form-group"><label class="form-label">Personal Access Token</label><input class="form-input" id="s-token" type="password" placeholder="patXXXXXXXXXXXXXX"></div>
     <div class="form-group"><label class="form-label">Base ID</label><input class="form-input" id="s-baseid" placeholder="appXXXXXXXXXXXXXX"></div>
     <div class="form-group"><label class="form-label">Table name</label><input class="form-input" id="s-table" value="Imported table"></div>
-    <button class="btn btn-lime" onclick="saveAndTest()">✓ Save & test connection</button>
+    <button class="btn btn-lime" onclick="saveAndTest()" style="margin-bottom:12px">✓ Save & test connection</button>
     <div id="test-result"></div>
   </div>
   <div class="card">
@@ -207,160 +308,485 @@ textarea.form-input { min-height: 80px; resize: vertical; }
 </div>
 
 </main>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="modal-title">New inquiry</div><button class="close-btn" onclick="closeModal()">✕</button></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Name *</label><input class="form-input" id="f-name" placeholder="First Last"></div>
+      <div class="form-group"><label class="form-label">Company</label><input class="form-input" id="f-company"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="f-email"></div>
+      <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="f-phone"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Event date</label><input class="form-input" id="f-date" type="date"></div>
+      <div class="form-group"><label class="form-label">Type</label><select class="form-input" id="f-type"><option value="">Select</option><option>Wedding</option><option>Corporate</option><option>Birthday</option><option>Private celebration</option><option>Community</option><option>Market</option><option>Other</option></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Status</label><select class="form-input" id="f-status"><option value="Progress">Progress</option><option value="Finished">Finished</option><option value="Dropped">Dropped</option></select></div>
+      <div class="form-group"><label class="form-label">Last stage</label>
+        <select class="form-input" id="f-stage">
+          <option value="">Select stage</option>
+          <option>Catering options email</option>
+          <option>Quote email</option>
+          <option>Menu specifications</option>
+          <option>Follow-up email</option>
+          <option>Payment reminder</option>
+          <option>Payment received</option>
+          <option>Breakdown email</option>
+          <option>Payment complete</option>
+          <option>Feedback email</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Next contact</label><input class="form-input" id="f-next" type="date"></div>
+      <div class="form-group"><label class="form-label">Guests</label><input class="form-input" id="f-guests" type="number"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Notes</label><textarea class="form-input" id="f-notes"></textarea></div>
+    <input type="hidden" id="f-airtable-id">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px">
+      <button class="btn" id="delete-btn" onclick="deleteInquiry()" style="border-color:#EF4444;color:#EF4444;display:none">✕ Delete</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" id="save-btn" onclick="saveInquiry()">✓ Save to Airtable</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-let allInquiries = [];
-let filteredInquiries = [];
+// =============================================
+// CONFIGURACIÓN — REEMPLAZÁ ESTOS VALORES
+// =============================================
+const CONFIG = {
+  token: 'TU_TOKEN_AQUI',
+  baseId: 'TU_BASE_ID_AQUI',
+  table: 'Imported table'
+};
+// =============================================
 
-function showPage(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-' + id).classList.add('active');
-  event.target.closest('.nav-item').classList.add('active');
-  if (id === 'settings') loadSettings();
-}
+let inquiries = [];
+let posts = JSON.parse(localStorage.getItem('mp_posts') || '[]');
+let currentPage = 1;
+const PER_PAGE = 25;
+let filtered = [];
+let editingAirtableId = null;
+const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
 function getConfig() {
-  return JSON.parse(localStorage.getItem('mp_config')) || { token: 'TU_TOKEN_AQUI', baseId: 'TU_BASE_ID_AQUI', table: 'Imported table' };
+  const saved = JSON.parse(localStorage.getItem('mp_config') || '{}');
+  return { token: saved.token || CONFIG.token, baseId: saved.baseId || CONFIG.baseId, table: saved.table || CONFIG.table };
 }
 
-function loadSettings() {
+function setSyncStatus(state, msg) {
+  const el = document.getElementById('sync-status');
+  el.className = 'sync-badge sync-' + state;
+  el.textContent = msg;
+}
+
+async function fetchAirtable(path, options = {}) {
   const cfg = getConfig();
-  const tokenEl = document.getElementById('s-token');
-  const baseIdEl = document.getElementById('s-baseid');
-  const tableEl = document.getElementById('s-table');
-  
-  if (tokenEl) tokenEl.value = cfg.token !== 'TU_TOKEN_AQUI' ? cfg.token : '';
-  if (baseIdEl) baseIdEl.value = cfg.baseId !== 'TU_BASE_ID_AQUI' ? cfg.baseId : '';
-  if (tableEl) tableEl.value = cfg.table || 'Imported table';
-}
-
-async function saveAndTest() {
-  try {
-    const tokenEl = document.getElementById('s-token');
-    const baseIdEl = document.getElementById('s-baseid');
-    const tableEl = document.getElementById('s-table');
-    const resultEl = document.getElementById('test-result');
-    
-    if (!tokenEl || !baseIdEl || !tableEl) { alert('Form elements not found'); return; }
-    
-    const token = tokenEl.value.trim();
-    const baseId = baseIdEl.value.trim();
-    const table = tableEl.value.trim();
-    
-    if (!token || !baseId) { alert('Please enter both token and base ID.'); return; }
-    
-    localStorage.setItem('mp_config', JSON.stringify({ token, baseId, table }));
-    
-    if (resultEl) resultEl.innerHTML = '<span style="color:var(--gray-dark);font-size:13px">Testing connection...</span>';
-    
-    const res = await fetch('https://api.airtable.com/v0/' + baseId + '/' + encodeURIComponent(table) + '?pageSize=1', { headers: { 'Authorization': 'Bearer ' + token } });
-    if (res.ok) {
-      if (resultEl) resultEl.innerHTML = '<span style="color:#1B7340;font-size:13px;font-weight:600">✓ Connection successful!</span>';
-      await syncFromAirtable();
-    } else {
-      if (resultEl) resultEl.innerHTML = '<span style="color:#B91C1C;font-size:13px">✕ Connection failed. Check your token and base ID.</span>';
-    }
-  } catch(e) { 
-    const resultEl = document.getElementById('test-result');
-    if (resultEl) resultEl.innerHTML = '<span style="color:#B91C1C;font-size:13px">✕ Network error: ' + e.message + '</span>';
-  }
+  const res = await fetch('https://api.airtable.com/v0/' + cfg.baseId + '/' + encodeURIComponent(cfg.table) + path, {
+    ...options,
+    headers: { 'Authorization': 'Bearer ' + cfg.token, 'Content-Type': 'application/json', ...options.headers }
+  });
+  if (!res.ok) throw new Error('Airtable error: ' + res.status);
+  return res.json();
 }
 
 async function syncFromAirtable() {
+  setSyncStatus('loading', '⟳ Syncing...');
   try {
-    const cfg = getConfig();
-    if (cfg.token === 'TU_TOKEN_AQUI') { alert('Please configure Settings first'); return; }
-    const url = 'https://api.airtable.com/v0/' + cfg.baseId + '/' + encodeURIComponent(cfg.table) + '?pageSize=100';
-    const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + cfg.token } });
-    if (res.ok) {
-      const data = await res.json();
-      allInquiries = (data.records || []).map(r => ({ id: r.id, ...r.fields }));
-      filteredInquiries = [...allInquiries];
-      renderDashboard();
-      renderTable();
-      renderCalendar();
-    } else {
-      alert('Error: ' + res.status + ' - Check your credentials');
-    }
-  } catch(e) { alert('Error syncing: ' + e.message); }
+    let all = [], offset = null;
+    do {
+      const url = offset ? '?offset=' + offset + '&pageSize=100' : '?pageSize=100';
+      const data = await fetchAirtable(url);
+      all = all.concat(data.records || []);
+      offset = data.offset || null;
+    } while (offset);
+
+    inquiries = all.map(r => ({
+      id: r.id,
+      name: r.fields['NAME'] || r.fields['Name'] || '',
+      company: r.fields['COMPANY'] || r.fields['Company'] || '',
+      email: r.fields['EMAIL'] || r.fields['Email'] || '',
+      phone: r.fields['NUMBER'] || r.fields['Phone'] || '',
+      date: r.fields['EVENT DATE'] || r.fields['Event date'] || '',
+      type: r.fields['TYPE OF EVENT'] || r.fields['Type of event'] || '',
+      stage: r.fields['LAST STAGE'] || r.fields['Last stage'] || '',
+      status: normalizeStatus(r.fields['STATUS'] || r.fields['Status'] || ''),
+      nextContact: r.fields['NEXT CONTACT'] || r.fields['Next contact'] || '',
+      firstContact: r.fields['FIRST CONTACT'] || r.fields['First contact'] || '',
+      lastUpdate: r.fields['LAST UPDATE'] || r.fields['Last update'] || '',
+      notes: r.fields['NOTES'] || r.fields['Notes'] || '',
+      guests: r.fields['GUESTS'] || ''
+    }));
+
+    filtered = [...inquiries];
+    setSyncStatus('ok', '✓ Synced · ' + inquiries.length + ' records');
+    updateDashboard();
+    renderTable();
+    renderCalendar();
+  } catch(e) {
+    setSyncStatus('err', '✕ Connection error');
+    console.error(e);
+  }
 }
 
-function renderDashboard() {
-  const progress = allInquiries.filter(i => i.Status === 'Progress').length;
-  const total = allInquiries.length;
-  const finished = allInquiries.filter(i => i.Status === 'Finished').length;
-  const followups = allInquiries.filter(i => i['Follow-up date'] && new Date(i['Follow-up date']) <= new Date()).length;
-  document.getElementById('metric-progress').textContent = progress;
-  document.getElementById('metric-total').textContent = total;
-  document.getElementById('metric-finished').textContent = finished;
-  document.getElementById('metric-followups').textContent = followups;
-  document.getElementById('inquiry-count-label').textContent = total + ' inquiries';
-  const thisWeek = allInquiries.filter(i => i.Status === 'Finished' || i.Status === 'Progress').slice(0, 3);
-  document.getElementById('dashboard-events').innerHTML = thisWeek.map(e => `<div class="event-row"><div class="event-date-box"><div class="event-day">${new Date(e.Date).getDate()}</div><div class="event-month">${new Date(e.Date).toLocaleString('en', {month:'short'})}</div></div><div class="event-info"><div class="event-name">${e.Name || 'Unnamed'}</div><div class="event-detail">${e['Event type'] || 'Event'} · ${e.Status === 'Finished' ? 'Payment complete' : 'In progress'}</div></div><button class="btn btn-sm" onclick="editInquiry('${e.id}')">Progress</button></div>`).join('') || '<div class="empty"><div class="empty-title">No events this week</div></div>';
+function normalizeStatus(s) {
+  const l = (s||'').toLowerCase().trim();
+  if (l === 'finished') return 'Finished';
+  if (l === 'dropped') return 'Dropped';
+  return 'Progress';
+}
+
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if (el) el.classList.add('active');
+  currentPage = 1;
+  if (id === 'dashboard') updateDashboard();
+  if (id === 'inquiries') filterTable();
+  if (id === 'calendar') renderCalendar();
+  if (id === 'content') renderWeek();
+  if (id === 'settings') loadSettings();
+}
+
+function fmtDate(str) {
+  if (!str) return '';
+  const s = str.trim();
+  if (s.includes('/')) { const p = s.split('/'); if (p.length === 3) return parseInt(p[0]) + ' ' + months[parseInt(p[1])-1] + ' ' + p[2]; }
+  if (s.includes('-') && s.length >= 8) { const [y,m,d] = s.split('-'); return parseInt(d) + ' ' + months[parseInt(m)-1] + ' ' + y; }
+  return s;
+}
+
+function parseDate(str) {
+  if (!str) return null;
+  const s = str.trim();
+  if (s.includes('/')) { const p = s.split('/'); if (p.length === 3) { let [d,m,y] = p; d=d.padStart(2,'0'); m=m.padStart(2,'0'); if(y.length===2) y='20'+y; return y+'-'+m+'-'+d; } }
+  return s;
+}
+
+function statusBadge(s) {
+  const map = { Progress:'b-progress', Finished:'b-finished', Dropped:'b-dropped' };
+  return '<span class="badge ' + (map[s]||'b-dropped') + '">' + (s||'—') + '</span>';
+}
+
+function daysTill(dateStr) {
+  if (!dateStr) return null;
+  const iso = parseDate(dateStr); if (!iso) return null;
+  const d = new Date(iso); if (isNaN(d)) return null;
+  const today = new Date(); today.setHours(0,0,0,0);
+  return Math.round((d - today) / 86400000);
+}
+
+function daysTillBadge(dateStr) {
+  const d = daysTill(dateStr);
+  if (d === null) return '<span style="color:var(--gray-dark)">—</span>';
+  const style = d < 0 ? 'color:var(--gray-dark)' : d <= 7 ? 'color:#B91C1C;font-weight:700' : d <= 30 ? 'color:#B45309' : 'color:#1B7340';
+  return '<span style="font-family:DM Mono,monospace;font-size:11px;' + style + '">' + d + 'd</span>';
 }
 
 function renderTable() {
-  const tbody = document.getElementById('table-body');
-  tbody.innerHTML = filteredInquiries.map(i => `<tr onclick="editInquiry('${i.id}')"><td>${i.Name || '-'}</td><td>${i.Company || '-'}</td><td>${i['Event type'] || '-'}</td><td>${i.Date || '-'}</td><td><span class="badge b-${(i.Status||'Progress').toLowerCase()}">${i.Status || 'Progress'}</span></td><td>${i['Follow-up date'] || '-'}</td><td><a href="#" onclick="event.stopPropagation();editInquiry('${i.id}')">Edit</a></td></tr>`).join('') || '<tr><td colspan="7"><div class="empty"><div class="empty-title">No inquiries found</div></div></td></tr>';
-}
-
-function renderCalendar() {
-  const today = new Date();
-  const followups = allInquiries.filter(i => i['Follow-up date'] && new Date(i['Follow-up date']) <= today);
-  document.getElementById('followups-today').innerHTML = followups.map(e => `<div class="event-row"><div class="event-date-box"><div class="event-day">${new Date(e['Follow-up date']).getDate()}</div><div class="event-month">${new Date(e['Follow-up date']).toLocaleString('en',{month:'short'})}</div></div><div class="event-info"><div class="event-name">${e.Name || 'Unnamed'}</div><div class="event-detail">${e['Event type'] || 'Follow-up'} · Due today</div></div><button class="btn btn-sm" onclick="editInquiry('${e.id}')">Progress</button></div>`).join('') || '<div class="empty"><div class="empty-title">No follow-ups due today</div></div>';
-  const confirmed = allInquiries.filter(i => (i.Status === 'Finished' || i.Status === 'Progress'));
-  document.getElementById('confirmed-events').innerHTML = confirmed.map(e => `<div class="event-row"><div class="event-date-box"><div class="event-day">${new Date(e.Date).getDate()}</div><div class="event-month">${new Date(e.Date).toLocaleString('en',{month:'short'})}</div></div><div class="event-info"><div class="event-name">${e.Name || 'Unnamed'}</div><div class="event-detail">${e['Event type'] || 'Event'} · ${e.Status === 'Finished' ? 'Payment complete' : 'In progress'}</div></div><button class="btn btn-sm" onclick="editInquiry('${e.id}')">Progress</button></div>`).join('') || '<div class="empty"><div class="empty-title">No confirmed events</div></div>';
+  const tbody = document.getElementById('inquiry-tbody');
+  const start = (currentPage - 1) * PER_PAGE;
+  const page = filtered.slice(start, start + PER_PAGE);
+  if (!page.length) { tbody.innerHTML = '<tr><td colspan="9"><div class="empty"><div class="empty-title">No inquiries found</div></div></td></tr>'; document.getElementById('pagination-info').textContent = '0 of 0'; return; }
+  tbody.innerHTML = page.map(i => '<tr onclick="editInquiry(\'' + i.id + '\')">' +
+    '<td style="font-weight:600">' + (i.name||'') + '</td>' +
+    '<td style="color:var(--gray-dark)">' + (i.company&&i.company!=='-'?i.company:'') + '</td>' +
+    '<td style="color:var(--gray-dark)">' + (fmtDate(i.date)||'—') + '</td>' +
+    '<td style="color:var(--gray-dark)">' + (i.type||'') + '</td>' +
+    '<td>' + daysTillBadge(i.date) + '</td>' +
+    '<td style="color:var(--gray-dark);max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (i.stage||'') + '</td>' +
+    '<td>' + statusBadge(i.status) + '</td>' +
+    '<td style="color:var(--gray-dark)">' + (fmtDate(i.nextContact)||'—') + '</td>' +
+    '<td style="color:var(--gray-dark);max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (i.notes||'') + '</td>' +
+    '</tr>').join('');
+  document.getElementById('pagination-info').textContent = (start+1) + '–' + Math.min(start+PER_PAGE, filtered.length) + ' of ' + filtered.length;
+  document.getElementById('inquiry-count-label').textContent = inquiries.length + ' total · ' + filtered.length + ' shown';
 }
 
 function filterTable() {
-  const search = document.getElementById('search-input').value.toLowerCase();
-  const status = document.getElementById('status-filter').value;
-  filteredInquiries = allInquiries.filter(i => {
-    const matchSearch = !search || (i.Name || '').toLowerCase().includes(search) || (i.Company || '').toLowerCase().includes(search);
-    const matchStatus = !status || i.Status === status;
-    return matchSearch && matchStatus;
+  const q = (document.getElementById('search-input').value||'').toLowerCase();
+  const st = document.getElementById('filter-status').value;
+  const ty = document.getElementById('filter-type').value;
+  const sort = document.getElementById('sort-field').value;
+
+  filtered = inquiries.filter(i => {
+    const text = (i.name+' '+i.company+' '+i.type+' '+i.notes).toLowerCase();
+    return (!q||text.includes(q)) && (!st||(i.status||'').includes(st)) && (!ty||(i.type||'').toLowerCase().includes(ty.toLowerCase()));
   });
-  renderTable();
+
+  if (sort) {
+    const [field, dir] = sort.split('-');
+    filtered.sort((a, b) => {
+      let va = '', vb = '';
+      if (field === 'nextContact') { va = parseDate(a.nextContact)||'9999'; vb = parseDate(b.nextContact)||'9999'; }
+      else if (field === 'date') { va = parseDate(a.date)||'9999'; vb = parseDate(b.date)||'9999'; }
+      else if (field === 'name') { va = (a.name||'').toLowerCase(); vb = (b.name||'').toLowerCase(); }
+      else if (field === 'status') { va = (a.status||'').toLowerCase(); vb = (b.status||'').toLowerCase(); }
+      if (va < vb) return dir === 'asc' ? -1 : 1;
+      if (va > vb) return dir === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
+
+  currentPage = 1; renderTable();
 }
 
-function editInquiry(id) {
-  alert('Edit modal for inquiry ' + id + ' (coming soon)');
+function prevPage() { if (currentPage > 1) { currentPage--; renderTable(); } }
+function nextPage() { if (currentPage * PER_PAGE < filtered.length) { currentPage++; renderTable(); } }
+
+function updateDashboard() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const active = inquiries.filter(i => i.status === 'Progress').length;
+  const finished = inquiries.filter(i => i.status === 'Finished').length;
+  const dropped = inquiries.filter(i => i.status === 'Dropped').length;
+  const followup = inquiries.filter(i => { if (!i.nextContact || i.status !== 'Progress') return false; const iso = parseDate(i.nextContact); if (!iso) return false; const d = new Date(iso); d.setHours(0,0,0,0); return d <= today; }).length;
+  document.getElementById('m-active').textContent = active;
+  document.getElementById('m-total').textContent = inquiries.length;
+  document.getElementById('m-finished').textContent = finished;
+  document.getElementById('m-followup').textContent = followup;
+
+  const paymentKeywords = ['payment received', 'payment complete', 'payment done', 'paid', 'deposit received', 'deposit paid'];
+  const weekEnd = new Date(today); weekEnd.setDate(weekEnd.getDate() + 7);
+  const upcoming = inquiries.filter(i => {
+    if (i.status !== 'Progress' || !i.date) return false;
+    const iso = parseDate(i.date); if (!iso) return false;
+    const d = new Date(iso); d.setHours(0,0,0,0);
+    if (d < today || d > weekEnd) return false;
+    const stage = (i.stage||'').toLowerCase();
+    return paymentKeywords.some(k => stage.includes(k));
+  }).sort((a,b) => (parseDate(a.date)||'').localeCompare(parseDate(b.date)||'')).slice(0,5);
+  const ul = document.getElementById('upcoming-list');
+  ul.innerHTML = upcoming.length ? upcoming.map(i => { const iso = parseDate(i.date); const d = iso ? new Date(iso) : null; const daysLeft = daysTill(i.date); return '<div class="event-row"><div class="event-date-box"><div class="event-day">' + (d?d.getDate():'?') + '</div><div class="event-month">' + (d?months[d.getMonth()]:'?') + '</div></div><div class="event-info"><div class="event-name">' + i.name + '</div><div class="event-detail">' + (i.type||'') + (i.stage?' · '+i.stage:'') + (daysLeft !== null ? ' · <span style="font-weight:600">' + daysLeft + 'd away</span>' : '') + '</div></div>' + statusBadge(i.status) + '</div>'; }).join('') : '<div class="empty"><div class="empty-title">No confirmed events this week</div><div style="font-size:12px;color:var(--gray-dark)">Events with payment received or complete will appear here</div></div>';
+
 }
 
-function showModal(type) {
-  alert('Modal for ' + type + ' (coming soon)');
+function renderCalendar() {
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  // Follow ups due today or overdue
+  const todayFollowUps = inquiries.filter(i => {
+    if (!i.nextContact || i.status !== 'Progress') return false;
+    const iso = parseDate(i.nextContact); if (!iso) return false;
+    const d = new Date(iso); d.setHours(0,0,0,0);
+    return d <= today;
+  }).sort((a,b) => (parseDate(a.nextContact)||'').localeCompare(parseDate(b.nextContact)||''));
+
+  const calToday = document.getElementById('cal-today');
+  if (todayFollowUps.length) {
+    calToday.innerHTML = todayFollowUps.map(i => {
+      const iso = parseDate(i.nextContact); const d = iso ? new Date(iso) : null;
+      const isOverdue = d && d < today;
+      return '<div class="event-row">' +
+        '<div class="event-date-box" style="background:' + (isOverdue ? 'var(--melon)' : 'var(--lime)') + '">' +
+        '<div class="event-day">' + (d?d.getDate():'?') + '</div>' +
+        '<div class="event-month">' + (d?months[d.getMonth()]:'?') + '</div></div>' +
+        '<div class="event-info">' +
+        '<div class="event-name">' + i.name + (i.company&&i.company!=='-'?' · '+i.company:'') + '</div>' +
+        '<div class="event-detail">' + (i.stage||'No stage') + (isOverdue ? ' · <span style="color:#B91C1C;font-weight:600">Overdue</span>' : ' · <span style="color:#1B7340;font-weight:600">Due today</span>') + '</div>' +
+        '</div>' + statusBadge(i.status) + '</div>';
+    }).join('');
+  } else {
+    calToday.innerHTML = '<div class="empty"><div class="empty-title">No follow ups due today 🎉</div><div style="font-size:12px;color:var(--gray-dark)">You\'re all caught up!</div></div>';
+  }
+
+  // Upcoming confirmed events — payment received or complete, in progress
+  const paymentKeywords = ['payment received', 'payment complete', 'payment done', 'paid', 'deposit received', 'deposit paid'];
+  const upcomingConfirmed = inquiries.filter(i => {
+    if (i.status !== 'Progress' || !i.date) return false;
+    const iso = parseDate(i.date); if (!iso) return false;
+    const d = new Date(iso); d.setHours(0,0,0,0);
+    if (d < today) return false;
+    const stage = (i.stage||'').toLowerCase();
+    return paymentKeywords.some(k => stage.includes(k));
+  }).sort((a,b) => (parseDate(a.date)||'').localeCompare(parseDate(b.date)||''));
+
+  const calUpcoming = document.getElementById('cal-upcoming');
+  if (upcomingConfirmed.length) {
+    calUpcoming.innerHTML = upcomingConfirmed.map(i => {
+      const iso = parseDate(i.date); const d = iso ? new Date(iso) : null;
+      const daysLeft = daysTill(i.date);
+      return '<div class="event-row">' +
+        '<div class="event-date-box">' +
+        '<div class="event-day">' + (d?d.getDate():'?') + '</div>' +
+        '<div class="event-month">' + (d?months[d.getMonth()]:'?') + '</div></div>' +
+        '<div class="event-info">' +
+        '<div class="event-name">' + i.name + (i.company&&i.company!=='-'?' · '+i.company:'') + '</div>' +
+        '<div class="event-detail">' + (i.type||'Event') + ' · ' + (i.stage||'') + (daysLeft !== null ? ' · <span style="font-weight:600">' + daysLeft + ' days away</span>' : '') + '</div>' +
+        '</div>' + statusBadge(i.status) + '</div>';
+    }).join('');
+  } else {
+    calUpcoming.innerHTML = '<div class="empty"><div class="empty-title">No upcoming confirmed events</div><div style="font-size:12px;color:var(--gray-dark)">Events with payment received or complete will appear here</div></div>';
+  }
+}
+
+function renderWeek() {
+  const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  document.getElementById('week-grid').innerHTML = days.map(d => '<div class="day-head">' + d.slice(0,3) + '</div>').join('') + days.map(d => { const p = posts.find(x => x.day===d); return '<div class="day-cell ' + (p?'has-post':'') + '" onclick="document.getElementById(\'post-day\').value=\'' + d + '\'">' + (p ? '<div class="post-tag">' + p.type + '</div><div class="post-preview">' + p.caption.slice(0,60) + '</div>' : '') + '</div>'; }).join('');
+}
+
+function addPost() {
+  const day = document.getElementById('post-day').value;
+  const type = document.getElementById('post-type').value;
+  const caption = document.getElementById('post-caption').value;
+  if (!caption.trim()) return;
+  posts = posts.filter(p => p.day !== day);
+  posts.push({ day, type, caption });
+  localStorage.setItem('mp_posts', JSON.stringify(posts));
+  document.getElementById('post-caption').value = '';
+  renderWeek();
 }
 
 function generateReviewPrompt() {
-  const name = document.getElementById('reviewer-name').value.trim();
+  const name = document.getElementById('reviewer-name').value || 'the customer';
   const stars = document.getElementById('review-stars').value;
-  const content = document.getElementById('review-content').value.trim();
-  if (!name || !content) { alert('Please fill in all fields'); return; }
-  
-  const starDisplay = '⭐'.repeat(parseInt(stars));
-  const prompt = `You are Carlos from Mr Papa Catering in Canberra. Respond to this Google review with warmth, professionalism, and authentic appreciation. Keep it under 150 words. Don't apologize unless necessary—focus on gratitude and invitation to return.
-
-**Review:**
-${starDisplay} ${stars} stars - ${name}
-
-"${content}"
-
-**Your response (in Carlos's voice):**`;
-  
+  const review = document.getElementById('review-content').value;
+  if (!review.trim()) { alert('Please paste a review first.'); return; }
+  const prompt = 'Generate a Google review response for Mr Papa Catering. Reviewer: ' + name + '. Stars: ' + stars + '/5. Review: "' + review + '". Use a warm, casual Australian tone. Keep it genuine and concise. Sign off as Carlos from Mr Papa Catering.';
   document.getElementById('review-draft-text').textContent = prompt;
   document.getElementById('review-draft').style.display = 'block';
 }
 
-function copyReview() {
-  const text = document.getElementById('review-draft-text').textContent;
-  navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard!')).catch(() => alert('Error copying'));
+function copyReview() { navigator.clipboard.writeText(document.getElementById('review-draft-text').textContent).then(() => alert('Copied!')).catch(() => {}); }
+
+function openModal(id) {
+  editingAirtableId = id || null;
+  document.getElementById('modal-title').textContent = id ? 'Edit inquiry' : 'New inquiry';
+  document.getElementById('delete-btn').style.display = id ? 'inline-flex' : 'none';
+  if (id) {
+    const i = inquiries.find(x => x.id === id);
+    if (i) {
+      document.getElementById('f-name').value = i.name||'';
+      document.getElementById('f-company').value = i.company||'';
+      document.getElementById('f-email').value = i.email||'';
+      document.getElementById('f-phone').value = i.phone||'';
+      document.getElementById('f-date').value = parseDate(i.date)||'';
+      document.getElementById('f-type').value = i.type||'';
+      document.getElementById('f-guests').value = i.guests||'';
+      document.getElementById('f-status').value = i.status||'Progress';
+      document.getElementById('f-stage').value = i.stage||'';
+      document.getElementById('f-next').value = parseDate(i.nextContact)||'';
+      document.getElementById('f-notes').value = i.notes||'';
+    }
+  } else {
+    ['f-name','f-company','f-email','f-phone','f-date','f-guests','f-stage','f-next','f-notes'].forEach(x => document.getElementById(x).value='');
+    document.getElementById('f-type').value = ''; document.getElementById('f-status').value = 'Progress';
+  }
+  document.getElementById('modal').classList.add('open');
 }
 
-// Init
-// Don't call loadSettings on init - call when Settings page opens
+function editInquiry(id) { openModal(id); }
+function closeModal() { document.getElementById('modal').classList.remove('open'); editingAirtableId = null; }
 
+async function deleteInquiry() {
+  if (!editingAirtableId) return;
+  if (!confirm('Are you sure you want to delete this inquiry? This cannot be undone.')) return;
+  const btn = document.getElementById('delete-btn');
+  btn.textContent = '⟳ Deleting...'; btn.disabled = true;
+  try {
+    await fetchAirtable('/' + editingAirtableId, { method: 'DELETE' });
+    closeModal();
+    await syncFromAirtable();
+  } catch(e) {
+    alert('Error deleting. Check your connection.');
+    btn.textContent = '✕ Delete'; btn.disabled = false;
+    console.error(e);
+  }
+}
+
+async function saveInquiry() {
+  const btn = document.getElementById('save-btn');
+  btn.textContent = '⟳ Saving...'; btn.disabled = true;
+  
+  const fields = {};
+  
+  const nameVal = document.getElementById('f-name').value.trim();
+  if (nameVal) fields['NAME'] = nameVal || 'Unknown';
+  
+  const companyVal = document.getElementById('f-company').value.trim();
+  if (companyVal) fields['COMPANY'] = companyVal;
+  
+  const emailVal = document.getElementById('f-email').value.trim();
+  if (emailVal) fields['EMAIL'] = emailVal;
+  
+  const phoneVal = document.getElementById('f-phone').value.trim();
+  if (phoneVal) fields['NUMBER'] = phoneVal;
+  
+  const typeVal = document.getElementById('f-type').value;
+  if (typeVal) fields['TYPE OF EVENT'] = typeVal;
+  
+  const statusVal = document.getElementById('f-status').value;
+  if (statusVal) fields['STATUS'] = statusVal;
+  
+  const stageVal = document.getElementById('f-stage').value.trim();
+  if (stageVal) fields['LAST STAGE'] = stageVal;
+  
+  const notesVal = document.getElementById('f-notes').value.trim();
+  if (notesVal) fields['NOTES'] = notesVal;
+
+  // Dates must be YYYY-MM-DD for Airtable date fields
+  const dateVal = document.getElementById('f-date').value;
+  if (dateVal) fields['EVENT DATE'] = dateVal;
+  
+  const nextVal = document.getElementById('f-next').value;
+  if (nextVal) fields['NEXT CONTACT'] = nextVal;
+
+  // Only send fields that Airtable can accept - skip NUMBER if it causes issues
+  const safeFields = {};
+  const allowedFields = ['NAME', 'COMPANY', 'EMAIL', 'NUMBER', 'TYPE OF EVENT', 'STATUS', 'LAST STAGE', 'NOTES', 'EVENT DATE', 'NEXT CONTACT'];
+  allowedFields.forEach(f => { if (fields[f] !== undefined) safeFields[f] = fields[f]; });
+
+  try {
+    if (editingAirtableId) {
+      await fetchAirtable('/' + editingAirtableId, { method: 'PATCH', body: JSON.stringify({ fields: safeFields }) });
+    } else {
+      await fetchAirtable('', { method: 'POST', body: JSON.stringify({ fields: safeFields }) });
+    }
+    closeModal();
+    await syncFromAirtable();
+  } catch(e) {
+    alert('Error saving to Airtable. Check your connection settings.');
+    console.error(e);
+  }
+  btn.textContent = '✓ Save to Airtable'; btn.disabled = false;
+}
+
+async function saveAndTest() {
+  const token = document.getElementById('s-token').value.trim();
+  const baseId = document.getElementById('s-baseid').value.trim();
+  const table = document.getElementById('s-table').value.trim();
+  if (!token || !baseId) { alert('Please enter both token and base ID.'); return; }
+  localStorage.setItem('mp_config', JSON.stringify({ token, baseId, table }));
+  const el = document.getElementById('test-result');
+  el.innerHTML = '<span style="color:var(--gray-dark);font-size:13px">Testing connection...</span>';
+  try {
+    const res = await fetch('https://api.airtable.com/v0/' + baseId + '/' + encodeURIComponent(table) + '?pageSize=1', { headers: { 'Authorization': 'Bearer ' + token } });
+    if (res.ok) {
+      el.innerHTML = '<span style="color:#1B7340;font-size:13px;font-weight:600">✓ Connection successful!</span>';
+      await syncFromAirtable();
+    } else {
+      el.innerHTML = '<span style="color:#B91C1C;font-size:13px">✕ Connection failed. Check your token and base ID.</span>';
+    }
+  } catch(e) { el.innerHTML = '<span style="color:#B91C1C;font-size:13px">✕ Network error.</span>'; }
+}
+
+function loadSettings() {
+  const cfg = getConfig();
+  document.getElementById('s-token').value = cfg.token !== 'TU_TOKEN_AQUI' ? cfg.token : '';
+  document.getElementById('s-baseid').value = cfg.baseId !== 'TU_BASE_ID_AQUI' ? cfg.baseId : '';
+  document.getElementById('s-table').value = cfg.table;
+}
+
+syncFromAirtable();
+renderWeek();
 </script>
 </body>
 </html>
