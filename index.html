@@ -218,6 +218,7 @@ function showPage(id) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + id).classList.add('active');
   event.target.closest('.nav-item').classList.add('active');
+  if (id === 'settings') loadSettings();
 }
 
 function getConfig() {
@@ -226,30 +227,45 @@ function getConfig() {
 
 function loadSettings() {
   const cfg = getConfig();
-  if (document.getElementById('s-token')) {
-    document.getElementById('s-token').value = cfg.token !== 'TU_TOKEN_AQUI' ? cfg.token : '';
-    document.getElementById('s-baseid').value = cfg.baseId !== 'TU_BASE_ID_AQUI' ? cfg.baseId : '';
-    document.getElementById('s-table').value = cfg.table || 'Imported table';
-  }
+  const tokenEl = document.getElementById('s-token');
+  const baseIdEl = document.getElementById('s-baseid');
+  const tableEl = document.getElementById('s-table');
+  
+  if (tokenEl) tokenEl.value = cfg.token !== 'TU_TOKEN_AQUI' ? cfg.token : '';
+  if (baseIdEl) baseIdEl.value = cfg.baseId !== 'TU_BASE_ID_AQUI' ? cfg.baseId : '';
+  if (tableEl) tableEl.value = cfg.table || 'Imported table';
 }
 
 async function saveAndTest() {
-  const token = document.getElementById('s-token').value.trim();
-  const baseId = document.getElementById('s-baseid').value.trim();
-  const table = document.getElementById('s-table').value.trim();
-  if (!token || !baseId) { alert('Please enter both token and base ID.'); return; }
-  localStorage.setItem('mp_config', JSON.stringify({ token, baseId, table }));
-  const el = document.getElementById('test-result');
-  el.innerHTML = '<span style="color:var(--gray-dark);font-size:13px">Testing connection...</span>';
   try {
+    const tokenEl = document.getElementById('s-token');
+    const baseIdEl = document.getElementById('s-baseid');
+    const tableEl = document.getElementById('s-table');
+    const resultEl = document.getElementById('test-result');
+    
+    if (!tokenEl || !baseIdEl || !tableEl) { alert('Form elements not found'); return; }
+    
+    const token = tokenEl.value.trim();
+    const baseId = baseIdEl.value.trim();
+    const table = tableEl.value.trim();
+    
+    if (!token || !baseId) { alert('Please enter both token and base ID.'); return; }
+    
+    localStorage.setItem('mp_config', JSON.stringify({ token, baseId, table }));
+    
+    if (resultEl) resultEl.innerHTML = '<span style="color:var(--gray-dark);font-size:13px">Testing connection...</span>';
+    
     const res = await fetch('https://api.airtable.com/v0/' + baseId + '/' + encodeURIComponent(table) + '?pageSize=1', { headers: { 'Authorization': 'Bearer ' + token } });
     if (res.ok) {
-      el.innerHTML = '<span style="color:#1B7340;font-size:13px;font-weight:600">✓ Connection successful!</span>';
+      if (resultEl) resultEl.innerHTML = '<span style="color:#1B7340;font-size:13px;font-weight:600">✓ Connection successful!</span>';
       await syncFromAirtable();
     } else {
-      el.innerHTML = '<span style="color:#B91C1C;font-size:13px">✕ Connection failed. Check your token and base ID.</span>';
+      if (resultEl) resultEl.innerHTML = '<span style="color:#B91C1C;font-size:13px">✕ Connection failed. Check your token and base ID.</span>';
     }
-  } catch(e) { el.innerHTML = '<span style="color:#B91C1C;font-size:13px">✕ Network error.</span>'; }
+  } catch(e) { 
+    const resultEl = document.getElementById('test-result');
+    if (resultEl) resultEl.innerHTML = '<span style="color:#B91C1C;font-size:13px">✕ Network error: ' + e.message + '</span>';
+  }
 }
 
 async function syncFromAirtable() {
@@ -343,7 +359,8 @@ function copyReview() {
 }
 
 // Init
-loadSettings();
+// Don't call loadSettings on init - call when Settings page opens
+
 </script>
 </body>
 </html>
