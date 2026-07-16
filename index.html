@@ -811,7 +811,7 @@ function loadSettings() {
   document.getElementById('s-baseid').value = cfg.baseId !== 'TU_BASE_ID_AQUI' ? cfg.baseId : '';
   document.getElementById('s-table').value = cfg.table || 'Imported table';
 }
-renderWeek();
+// Don't call renderWeek on init - only when Calendar page is viewed
 </script>
 </body>
 </html>
