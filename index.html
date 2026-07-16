@@ -1033,8 +1033,11 @@ function loadSettings() {
   document.getElementById('s-table-social').value = cfg.tableSocial || 'Social Content';
   document.getElementById('s-buffer-key').value = cfg.bufferKey || '';
 }
-syncSocialContent();
-renderWeek();
+// Only sync when user clicks, not automatically
+if (document.getElementById('week-grid')) {
+  renderWeek();
+}
+</script>
 </script>
 </body>
 </html>
